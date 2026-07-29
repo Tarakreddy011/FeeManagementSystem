@@ -1,12 +1,16 @@
 package com.fms.demoFMS.Service;
 
+import com.fms.demoFMS.DTOS.AddFeeUpdateRequestDTO;
 import com.fms.demoFMS.DTOS.AddFeeUpdateResponseDTO;
 import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
 import com.fms.demoFMS.Repos.TeacherRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class FeeUpdateService {
 
     StudentRepo studentRepo;
@@ -18,11 +22,11 @@ public class FeeUpdateService {
         this.teacherRepo = teacherRepo;
     }
 
-    public AddFeeUpdateResponseDTO setfeeToStudentById(AddFeeUpdateResponseDTO request) {
+    public AddFeeUpdateResponseDTO setfeeToStudentById(AddFeeUpdateRequestDTO request) {
         StudentEntity student = studentRepo.findById(request.getStudentid())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        PrincipalEntity teacher = teacherRepo.findById(request.getTeaherid())
+        PrincipalEntity teacher = teacherRepo.findById(request.getTeacherid())
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
         student.setFeebalance(request.getFeebalance());
@@ -37,7 +41,7 @@ public class FeeUpdateService {
         response.setTeachername(request.getTeachername());
         response.setStudentname(student.getStudentname());
         response.setNewfee(request.getNewfee());
-        response.setFatherName(request.getFatherName());
+        response.setFatherName(request.getFathername());
         return response;
     }
 }

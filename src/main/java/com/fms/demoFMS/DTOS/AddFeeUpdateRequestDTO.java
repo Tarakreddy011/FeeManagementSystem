@@ -10,7 +10,9 @@ public class AddFeeUpdateRequestDTO {
     private Integer studentid;
     private int feebalance;
     private String studentname;
-   // private String teachername;
+   private Integer teacherid;
     private double newfee;
-
+    private String fathername;
+    private String teachername;
 }
+
