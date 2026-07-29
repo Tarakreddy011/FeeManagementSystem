@@ -6,11 +6,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ResponseStudentDto {
+public class AddFeeUpdateResponseDTO {
 
     private Integer studentid;
+    private Integer teaherid;
     private String studentname;
     private String fatherName;
     private String email;
     private int feebalance;
+    private String teachername;
+    private double newfee;
+
+
 }

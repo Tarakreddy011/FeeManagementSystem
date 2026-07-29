@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class ResponseTeacherdto {
 
-    private Integer id;
+    private Integer teacherid;
     private String teachername;
     private String email;
     private int phone;

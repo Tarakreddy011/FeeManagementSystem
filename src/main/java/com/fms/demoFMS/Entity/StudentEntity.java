@@ -14,12 +14,17 @@ public class StudentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer studentid;
     private String studentname;
     private String fatherName;
     @Email
     private String email;
     @NotNull
     private int feebalance;
+
+
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private PrincipalEntity teacher;
 
 }

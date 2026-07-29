@@ -14,7 +14,7 @@ public class PrincipalEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer teacherid;
 
     private String teachername;
 

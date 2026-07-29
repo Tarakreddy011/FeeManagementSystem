@@ -48,7 +48,7 @@ public class TeacherService {
 
     public PrincipalEntity mapToPrincipal(AddTeacherdto addTeacherdto) {
         PrincipalEntity principalEntity = new PrincipalEntity();
-        //principalEntity.setId(addTeacherdto.getId());
+       principalEntity.setTeacherid(addTeacherdto.getId());
         principalEntity.setEmail(addTeacherdto.getEmail());
         principalEntity.setPhone(addTeacherdto.getPhone());
         principalEntity.setTeachername(addTeacherdto.getTeachername());
@@ -57,7 +57,7 @@ public class TeacherService {
 
     public ResponseTeacherdto maptoResponseTeacherdto(PrincipalEntity principalEntity) {
         ResponseTeacherdto responseTeacherdto = new ResponseTeacherdto();
-        //responseTeacherdto.setId(principalEntity.getId());
+        responseTeacherdto.setTeacherid(principalEntity.getTeacherid());
         responseTeacherdto.setEmail(principalEntity.getEmail());
         responseTeacherdto.setPhone(principalEntity.getPhone());
         responseTeacherdto.setTeachername(principalEntity.getTeachername());

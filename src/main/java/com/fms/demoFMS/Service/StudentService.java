@@ -49,7 +49,7 @@ public class StudentService {
 
     public ResponseStudentDto mapToResponseStudent(StudentEntity studentEntity) {
         ResponseStudentDto responseStudentDto = new ResponseStudentDto();
-        responseStudentDto.setId(studentEntity.getId());
+        responseStudentDto.setStudentid(studentEntity.getStudentid());
         responseStudentDto.setEmail(studentEntity.getEmail());
         responseStudentDto.setStudentname(studentEntity.getStudentname());
         responseStudentDto.setFatherName(studentEntity.getFatherName());
@@ -59,7 +59,7 @@ public class StudentService {
 
     public StudentEntity mapToStudent(AddStudentdto addStudentdto) {
         StudentEntity studentEntity = new StudentEntity();
-        studentEntity.setId(addStudentdto.getId());
+        studentEntity.setStudentid(addStudentdto.getId());
         studentEntity.setEmail(addStudentdto.getEmail());
         studentEntity.setStudentname(addStudentdto.getStudentname());
         studentEntity.setFatherName(addStudentdto.getFatherName());
