@@ -14,7 +14,7 @@ public class PrincipalEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String teachername;
 
@@ -22,5 +22,5 @@ public class PrincipalEntity {
     private String email;
     private int phone;
 
-    private boolean isprincipal;
+    private String isprincipal;
 }

@@ -14,7 +14,7 @@ public class StudentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String studentname;
     private String fatherName;
     @Email
