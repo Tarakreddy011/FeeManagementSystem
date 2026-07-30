@@ -19,8 +19,8 @@ public class StudentEntity {
     private String fatherName;
     @Email
     private String email;
-    @NotNull
-    private int feebalance;
+
+    private double feebalance;
 
 
     @ManyToOne

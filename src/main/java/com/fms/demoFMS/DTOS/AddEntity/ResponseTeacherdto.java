@@ -1,4 +1,4 @@
-package com.fms.demoFMS.DTOS;
+package com.fms.demoFMS.DTOS.AddEntity;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,7 @@
 package com.fms.demoFMS.GlobalExe;
 
 
-import com.fms.demoFMS.DTOS.ExecptionDTO;
+import com.fms.demoFMS.DTOS.Execptions.ExecptionDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

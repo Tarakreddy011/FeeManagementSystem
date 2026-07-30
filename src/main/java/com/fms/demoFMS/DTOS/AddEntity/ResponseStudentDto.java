@@ -1,4 +1,4 @@
-package com.fms.demoFMS.DTOS;
+package com.fms.demoFMS.DTOS.AddEntity;
 
 
 import lombok.Getter;
@@ -6,13 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddStudentdto {
+public class ResponseStudentDto {
 
-
-    private Integer id;
+    private Integer studentid;
     private String studentname;
     private String fatherName;
     private String email;
-    private int feebalance;
-
+    private double feebalance;
 }

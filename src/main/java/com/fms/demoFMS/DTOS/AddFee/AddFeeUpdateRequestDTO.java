@@ -1,4 +1,4 @@
-package com.fms.demoFMS.DTOS;
+package com.fms.demoFMS.DTOS.AddFee;
 
 
 import lombok.Getter;
@@ -11,8 +11,9 @@ public class AddFeeUpdateRequestDTO {
     private int feebalance;
     private String studentname;
    private Integer teacherid;
-    private double newfee;
-    private String fathername;
-    private String teachername;
+   // private double newfee;
+    private String email;
+//    private String fathername;
+//    private String teachername;
 }
 

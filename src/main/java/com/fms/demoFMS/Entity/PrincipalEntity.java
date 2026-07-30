@@ -23,4 +23,6 @@ public class PrincipalEntity {
     private int phone;
 
     private String isprincipal;
+
+
 }

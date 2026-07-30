@@ -1,8 +1,8 @@
 package com.fms.demoFMS.Service;
 
-import com.fms.demoFMS.DTOS.AddTeacherdto;
-import com.fms.demoFMS.DTOS.ResponseTeacherdto;
-import com.fms.demoFMS.DTOS.TeacherUpdate;
+import com.fms.demoFMS.DTOS.AddEntity.AddTeacherdto;
+import com.fms.demoFMS.DTOS.AddEntity.ResponseTeacherdto;
+import com.fms.demoFMS.DTOS.UpdateEntity.TeacherUpdate;
 import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Repos.TeacherRepo;
 import org.springframework.beans.factory.annotation.Autowired;

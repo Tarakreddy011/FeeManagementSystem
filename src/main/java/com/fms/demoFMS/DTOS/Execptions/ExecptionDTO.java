@@ -1,4 +1,4 @@
-package com.fms.demoFMS.DTOS;
+package com.fms.demoFMS.DTOS.Execptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.fms.demoFMS.Service;
 
-import com.fms.demoFMS.DTOS.AddFeeUpdateRequestDTO;
-import com.fms.demoFMS.DTOS.AddFeeUpdateResponseDTO;
+import com.fms.demoFMS.DTOS.AddFee.AddFeeUpdateRequestDTO;
+import com.fms.demoFMS.DTOS.AddFee.AddFeeUpdateResponseDTO;
 import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
@@ -32,16 +32,21 @@ public class FeeUpdateService {
         student.setFeebalance(request.getFeebalance());
         student.setTeacher(teacher);
 
+
         studentRepo.save(student);
 
         AddFeeUpdateResponseDTO response = new AddFeeUpdateResponseDTO();
+        response.setNewfee(request.getFeebalance());
         response.setStudentid(student.getStudentid());
+        response.setFatherName(student.getFatherName());
+        response.setTeacherName(teacher.getTeachername());
         response.setTeaherid(teacher.getTeacherid());
         response.setFeebalance(request.getFeebalance());
-        response.setTeachername(request.getTeachername());
         response.setStudentname(student.getStudentname());
-        response.setNewfee(request.getNewfee());
-        response.setFatherName(request.getFathername());
+        //response.setNewfee(request.());      //need to add thew clculated new fees
+        //response.setNewfee(request.getNewfee());
+        response.setEmail(student.getEmail());
+
         return response;
     }
 }
