@@ -34,13 +34,13 @@ public class StudentController {
     }
 
     @PutMapping("/updatestudent/{id}")
-    public ResponseEntity<?> updateStudentByID(Integer id, StudentUpdate studentUpdate) {
+    public ResponseEntity<?> updateStudentByID(@PathVariable Integer id, StudentUpdate studentUpdate) {
         ResponseStudentDto responseStudentDto = studentService.updateStudentByID(id, studentUpdate);
         return ResponseEntity.status(201).body(responseStudentDto);
     }
 
     @DeleteMapping("/deletestudent/{id}")
-    public ResponseEntity<?> deleteStudentByID(Integer id) {
+    public ResponseEntity<?> deleteStudentByID(@PathVariable Integer id) {
         StudentEntity result = studentService.deleteStudentByID(id);
 
         return ResponseEntity.status(200).body(result);
