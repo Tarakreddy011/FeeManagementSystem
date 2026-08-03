@@ -16,7 +16,7 @@ public class StudentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer studentid;
     private String studentname;
-    private String fatherName;
+    private String fathername;
     @Email
     private String email;
 

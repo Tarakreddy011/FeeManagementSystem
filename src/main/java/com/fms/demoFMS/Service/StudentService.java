@@ -37,7 +37,7 @@ public class StudentService {
                 .orElseThrow(() -> new RuntimeException("Student Not found"));
 
         existingStudentEntity.setStudentname(studentUpdate.getStudentname());
-        existingStudentEntity.setFatherName(studentUpdate.getFatherName());
+        existingStudentEntity.setFathername(studentUpdate.getFatherName());
 
         StudentEntity updatedStudentEntity = studentRepo.save(existingStudentEntity);
         return mapToResponseStudent(updatedStudentEntity);
@@ -54,7 +54,7 @@ public class StudentService {
         responseStudentDto.setStudentid(studentEntity.getStudentid());
         responseStudentDto.setEmail(studentEntity.getEmail());
         responseStudentDto.setStudentname(studentEntity.getStudentname());
-        responseStudentDto.setFatherName(studentEntity.getFatherName());
+        responseStudentDto.setFathername(studentEntity.getFathername());
         responseStudentDto.setFeebalance(studentEntity.getFeebalance());
         return responseStudentDto;
     }
@@ -64,7 +64,7 @@ public class StudentService {
         studentEntity.setStudentid(addStudentdto.getId());
         studentEntity.setEmail(addStudentdto.getEmail());
         studentEntity.setStudentname(addStudentdto.getStudentname());
-        studentEntity.setFatherName(addStudentdto.getFatherName());
+        studentEntity.setFathername(addStudentdto.getFathername());
         studentEntity.setFeebalance(addStudentdto.getFeebalance());
         if(addStudentdto.getFeebalance()<= 0){
             throw new IllegalArgumentException("Feebalance cannot be negative");

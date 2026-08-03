@@ -11,7 +11,7 @@ public class AddStudentdto {
 
     private Integer id;
     private String studentname;
-    private String fatherName;
+    private String fathername;
     private String email;
     private int feebalance;
 

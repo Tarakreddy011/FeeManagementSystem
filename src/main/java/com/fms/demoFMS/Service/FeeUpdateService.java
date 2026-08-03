@@ -38,7 +38,7 @@ public class FeeUpdateService {
         AddFeeUpdateResponseDTO response = new AddFeeUpdateResponseDTO();
         response.setNewfee(request.getFeebalance());
         response.setStudentid(student.getStudentid());
-        response.setFatherName(student.getFatherName());
+        response.setFatherName(student.getFathername());
         response.setTeacherName(teacher.getTeachername());
         response.setTeaherid(teacher.getTeacherid());
         response.setFeebalance(request.getFeebalance());

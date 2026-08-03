@@ -10,7 +10,7 @@ public class ResponseStudentDto {
 
     private Integer studentid;
     private String studentname;
-    private String fatherName;
+    private String fathername;
     private String email;
     private double feebalance;
 }
