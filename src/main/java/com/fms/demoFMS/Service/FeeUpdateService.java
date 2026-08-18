@@ -6,6 +6,7 @@ import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
 import com.fms.demoFMS.Repos.TeacherRepo;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class FeeUpdateService {
         this.teacherRepo = teacherRepo;
     }
 
+    @Test
     public AddFeeUpdateResponseDTO setfeeToStudentById(AddFeeUpdateRequestDTO request) {
         StudentEntity student = studentRepo.findById(request.getStudentid())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
