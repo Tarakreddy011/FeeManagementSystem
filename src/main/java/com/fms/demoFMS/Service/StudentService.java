@@ -5,6 +5,7 @@ import com.fms.demoFMS.DTOS.AddEntity.ResponseStudentDto;
 import com.fms.demoFMS.DTOS.UpdateEntity.StudentUpdate;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class StudentService {
         return mapToResponseStudent(studentEntity);
     }
 
+    @Test
     public ResponseStudentDto updateStudentByID(Integer id, StudentUpdate studentUpdate) {
         StudentEntity existingStudentEntity = studentRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student Not found"));
@@ -71,5 +73,7 @@ public class StudentService {
         }
         return studentEntity;
     }
+
+
 
 }
