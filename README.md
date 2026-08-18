@@ -249,7 +249,7 @@ The main objective of this project is to build a **secure, scalable, and reliabl
 
 ## 👨‍💻 Author
 
-**Tarak**
+**Tarakeswar Reddy**
 
 B.Tech Computer Science Engineering Student
 
