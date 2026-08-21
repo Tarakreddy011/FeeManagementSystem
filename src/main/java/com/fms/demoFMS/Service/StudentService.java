@@ -9,9 +9,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.boot.io.ApplicationResourceLoader.get;
+
 @Service
 public class StudentService {
 
+    @Autowired
     StudentRepo studentRepo;
 
     @Autowired
@@ -32,6 +35,17 @@ public class StudentService {
         StudentEntity studentEntity = studentRepo.findById(id).get();
         return mapToResponseStudent(studentEntity);
     }
+
+//    public StudentEntity getstudentByname(String studentname) {
+//        return studentRepo.findByName(studentname)
+//                .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
+//    }
+public StudentEntity getstudentByname(String studentname) {
+    return studentRepo.findByStudentname(studentname)
+            .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
+}
+
+
 
     @Test
     public ResponseStudentDto updateStudentByID(Integer id, StudentUpdate studentUpdate) {

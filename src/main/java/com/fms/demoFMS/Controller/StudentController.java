@@ -33,6 +33,25 @@ public class StudentController {
         return ResponseEntity.status(200).body(responseStudentDto);
     }
 
+    /*public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
+        try{
+            StudentEntity studentEntity = studentService.getstudentByname(name);
+            return ResponseEntity.status(200).body(studentEntity);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }*/
+    @GetMapping("/getstudent/byname")
+    public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
+        try {
+            StudentEntity studentEntity = studentService.getstudentByname(name);
+            return ResponseEntity.status(200).body(studentEntity);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Student not found");
+        }
+    }
+
+
     @PutMapping("/updatestudent/{id}")
     public ResponseEntity<?> updateStudentByID(@PathVariable Integer id, StudentUpdate studentUpdate) {
         ResponseStudentDto responseStudentDto = studentService.updateStudentByID(id, studentUpdate);
