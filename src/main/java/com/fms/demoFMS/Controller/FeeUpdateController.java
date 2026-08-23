@@ -22,4 +22,6 @@ public class FeeUpdateController {
         AddFeeUpdateResponseDTO response = feeUpdateService.setfeeToStudentById(request);
         return ResponseEntity.ok(response);
     }
+
+
 }
