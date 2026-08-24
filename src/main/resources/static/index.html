@@ -2,9 +2,249 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PayMyFee.in</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMyFee | Simple. Secure. Fast.</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-<h1>PayMyFee.in</h1>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="logo">
+        <span class="logo-icon">₹</span>
+        <span>PayMyFee</span>
+    </div>
+
+    <button id="loginBtn" class="nav-login">
+        Login
+    </button>
+</nav>
+
+
+<!-- Hero Section -->
+<main>
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="badge">
+                🔒 Secure & Reliable
+            </div>
+
+            <h1>
+                Pay your fees.
+                <span>Simple & Fast.</span>
+            </h1>
+
+            <p class="hero-text">
+                A simple and secure platform to manage your
+                college fee payments, track transactions,
+                and stay on top of your deadlines.
+            </p>
+
+            <div class="hero-buttons">
+                <button id="heroLoginBtn" class="primary-btn">
+                    Get Started →
+                </button>
+
+                <button class="secondary-btn" onclick="scrollToFeatures()">
+                    Explore Features
+                </button>
+            </div>
+
+            <div class="trust">
+                <div class="trust-item">
+                    <strong>100%</strong>
+                    <span>Secure</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="trust-item">
+                    <strong>24/7</strong>
+                    <span>Accessible</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="trust-item">
+                    <strong>Fast</strong>
+                    <span>Payments</span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Payment Card -->
+        <div class="hero-card">
+
+            <div class="card-header">
+                <div>
+                    <p>Current Fee</p>
+                    <h2>₹45,000</h2>
+                </div>
+
+                <div class="card-icon">
+                    💳
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Payment Progress</span>
+                    <span>75%</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="payment-info">
+                <div>
+                    <span>Due Date</span>
+                    <strong>30 Aug 2026</strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+                    <strong class="status">● Pending</strong>
+                </div>
+            </div>
+
+            <button class="card-btn" id="cardLoginBtn">
+                Pay Now
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- Features -->
+    <section id="features" class="features-section">
+
+        <div class="section-heading">
+            <span>WHY PAYMYFEE?</span>
+            <h2>Everything you need to manage your fees</h2>
+            <p>
+                Designed to make fee management easier for students.
+            </p>
+        </div>
+
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <h3>Easy Payments</h3>
+                <p>
+                    Pay your college fees online quickly
+                    without unnecessary steps.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Track Payments</h3>
+                <p>
+                    View your payment history and keep
+                    track of every transaction.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Smart Reminders</h3>
+                <p>
+                    Get timely reminders so you never
+                    miss an important fee deadline.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h3>Secure</h3>
+                <p>
+                    Your account and payment information
+                    are protected with secure authentication.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CTA -->
+    <section class="cta">
+
+        <div>
+            <span class="cta-small">READY TO GET STARTED?</span>
+
+            <h2>
+                Manage your fees<br>
+                without the hassle.
+            </h2>
+
+            <p>
+                Login to your account and take control
+                of your fee payments.
+            </p>
+        </div>
+
+        <button id="ctaLoginBtn" class="primary-btn">
+            Login to PayMyFee →
+        </button>
+
+    </section>
+
+</main>
+
+
+<!-- Footer -->
+<footer>
+
+    <div class="footer-content">
+
+        <div class="footer-brand">
+            <div class="logo">
+                <span class="logo-icon">₹</span>
+                <span>PayMyFee</span>
+            </div>
+
+            <p>
+                Simple, secure and smarter fee payments.
+            </p>
+        </div>
+
+        <div class="footer-right">
+            <p>Made by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE · Lovely Professional University</p>
+            <p>📍 Phagwara, India</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 PayMyFee. All rights reserved.
+    </div>
+
+</footer>
+
+
+<script src="script.js"></script>
+
+<script>
+    function scrollToFeatures() {
+        document.getElementById("features").scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+</script>
+
 </body>
 </html>
