@@ -1,0 +1,36 @@
+                                              Spring security
+
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+user name = user
+pwd = will be generated in runtime time and avalilable at console
+
+link to docs = https://docs.spring.io/spring-security/reference/getting-spring-security.html
+
+BASIC AUTH
+here we use username as user by default all endpoints get auth so we send user and pwd in header and it get authenticated
+
+if no html or login page is found basic auth uses inbuilt auth screen
+
+here the pwd is encoded into 64 bit hash   https://www.base64encode.org/
+
+and to use coustom login  we use different class for it
+
+--> 1 we add spring security dependency to pom.xml
+--> 2 then we send request using postman
+--> 3 in postman we go to authurization and select basic auth
+--> 4 in basic auth we use default username as user and pwd is generated in console and we use same
+--> 5 then the pwd and username is converted to header as fallowes
+        --> username:pwd
+        ex
+               user:85604b7e-f1b2-43e4-898f-4ff5ce57f49d
+                                                   * base 64
+                                                  -->  dXNlcjo4NTYwNGI3ZS1mMWIyLTQzZTQtODk4Zi00ZmY1Y2U1N2Y0OWQ=
+
+--> so this is how it is send in headers
+
+
