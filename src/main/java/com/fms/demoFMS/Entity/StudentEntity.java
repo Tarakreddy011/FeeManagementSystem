@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDate;
+
 
 @Entity
 @Getter
@@ -16,10 +18,12 @@ public class StudentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer studentid;
     private String studentname;
+    private String password;
+
+    private LocalDate birthdate;
     private String fathername;
     @Email
     private String email;
-
     private double feebalance;
 
 

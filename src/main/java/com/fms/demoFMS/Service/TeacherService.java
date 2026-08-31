@@ -8,6 +8,8 @@ import com.fms.demoFMS.Repos.TeacherRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class TeacherService {
 
@@ -20,7 +22,9 @@ public class TeacherService {
 
     public ResponseTeacherdto addTeacher(AddTeacherdto addTeacherdto) {
         PrincipalEntity principalEntity = mapToPrincipal(addTeacherdto);
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String pwd = addTeacherdto.getBirthdate().format(formatter);
+        principalEntity.setPassword(pwd);
         teacherRepo.save(principalEntity);
         return maptoResponseTeacherdto(principalEntity);
     }
@@ -51,6 +55,7 @@ public class TeacherService {
        principalEntity.setTeacherid(addTeacherdto.getId());
         principalEntity.setEmail(addTeacherdto.getEmail());
         principalEntity.setPhone(addTeacherdto.getPhone());
+        principalEntity.setBirthdate(addTeacherdto.getBirthdate());
         principalEntity.setTeachername(addTeacherdto.getTeachername());
         return principalEntity;
     }

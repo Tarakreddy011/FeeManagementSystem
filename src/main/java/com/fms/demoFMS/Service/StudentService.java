@@ -9,7 +9,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static org.springframework.boot.io.ApplicationResourceLoader.get;
+import java.time.format.DateTimeFormatter;
+
+
 
 @Service
 public class StudentService {
@@ -27,6 +29,14 @@ public class StudentService {
         if(addStudentdto.getFeebalance() <= 0){
             return null;
         }
+//        studentEntity.setPassword(studentEntity.getPassword());
+//        DateTimeFormatter formater = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        String pwd  = studentEntity.getPassword().toString();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+//        String pwd = addStudentdto.getBirthdate().format(formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        String pwd = addStudentdto.getBirthdate().format(formatter);
+        studentEntity.setPassword(pwd);
         studentRepo.save(studentEntity);
         return mapToResponseStudent(studentEntity);
     }
@@ -47,7 +57,7 @@ public StudentEntity getstudentByname(String studentname) {
 
 
 
-    @Test
+
     public ResponseStudentDto updateStudentByID(Integer id, StudentUpdate studentUpdate) {
         StudentEntity existingStudentEntity = studentRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student Not found"));
@@ -72,6 +82,7 @@ public StudentEntity getstudentByname(String studentname) {
         responseStudentDto.setStudentname(studentEntity.getStudentname());
         responseStudentDto.setFathername(studentEntity.getFathername());
         responseStudentDto.setFeebalance(studentEntity.getFeebalance());
+
         return responseStudentDto;
     }
 
@@ -80,6 +91,7 @@ public StudentEntity getstudentByname(String studentname) {
         studentEntity.setStudentid(addStudentdto.getId());
         studentEntity.setEmail(addStudentdto.getEmail());
         studentEntity.setStudentname(addStudentdto.getStudentname());
+        studentEntity.setBirthdate(addStudentdto.getBirthdate());
         studentEntity.setFathername(addStudentdto.getFathername());
         studentEntity.setFeebalance(addStudentdto.getFeebalance());
         if(addStudentdto.getFeebalance()<= 0){

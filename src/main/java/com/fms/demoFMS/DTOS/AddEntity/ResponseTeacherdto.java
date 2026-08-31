@@ -12,6 +12,6 @@ public class ResponseTeacherdto {
     private String teachername;
     private String email;
     private int phone;
-    //private boolean isprincipal;
+
 
 }
