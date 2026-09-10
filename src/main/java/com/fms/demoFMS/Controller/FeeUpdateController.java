@@ -18,7 +18,7 @@ public class FeeUpdateController {
     FeeUpdateService feeUpdateService;
 
     @PostMapping("student/{id}/fee")
-    public ResponseEntity<AddFeeUpdateResponseDTO> addfeetostuent(@RequestBody AddFeeUpdateRequestDTO request){
+    public ResponseEntity<AddFeeUpdateResponseDTO> addfeetostuent(@RequestBody AddFeeUpdateRequestDTO request) {
         AddFeeUpdateResponseDTO response = feeUpdateService.setfeeToStudentById(request);
         return ResponseEntity.ok(response);
     }

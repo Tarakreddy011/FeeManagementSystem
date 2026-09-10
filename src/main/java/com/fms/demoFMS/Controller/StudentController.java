@@ -34,14 +34,13 @@ public class StudentController {
         return ResponseEntity.status(200).body(responseStudentDto);
     }
 
-    /*public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
-        try{
-            StudentEntity studentEntity = studentService.getstudentByname(name);
-            return ResponseEntity.status(200).body(studentEntity);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().build();
-        }
-    }*/
+
+    /*
+    ToDO
+    here need to use path variable insted using requestparam
+     */
+
+
     @GetMapping("/getstudent/byname")
     public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
         try {

@@ -1,6 +1,5 @@
 package com.fms.demoFMS.DTOS.FeeRecpitDTO;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +15,7 @@ public class RequestFeePaymentDTO {
 }
 /**
  *
- //private Integer feepaymentId;
- //LocalDate date;
- //LocalTime time;
+ * //private Integer feepaymentId;
+ * //LocalDate date;
+ * //LocalTime time;
  */

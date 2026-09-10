@@ -2,16 +2,16 @@ package com.fms.demoFMS.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDate;
 
 
 @Entity
 @Getter
 @Setter
-@Table(name="student")
+@Table(name = "student")
 public class StudentEntity {
 
     @Id

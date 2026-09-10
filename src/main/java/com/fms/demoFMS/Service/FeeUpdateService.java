@@ -18,7 +18,7 @@ public class FeeUpdateService {
     TeacherRepo teacherRepo;
 
     @Autowired
-    public  FeeUpdateService(StudentRepo studentRepo, TeacherRepo teacherRepo) {
+    public FeeUpdateService(StudentRepo studentRepo, TeacherRepo teacherRepo) {
         this.studentRepo = studentRepo;
         this.teacherRepo = teacherRepo;
     }

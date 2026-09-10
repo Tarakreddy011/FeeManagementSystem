@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class StudentUpdate {
 
-   // private int id;
+    // private int id;
     private String studentname;
     private String fatherName;
-   // private String email;
-   // private int feebalance;
+    // private String email;
+    // private int feebalance;
 
 }

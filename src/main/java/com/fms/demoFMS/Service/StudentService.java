@@ -5,12 +5,10 @@ import com.fms.demoFMS.DTOS.AddEntity.ResponseStudentDto;
 import com.fms.demoFMS.DTOS.UpdateEntity.StudentUpdate;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
-
 
 
 @Service
@@ -26,14 +24,10 @@ public class StudentService {
 
     public ResponseStudentDto addstudent(AddStudentdto addStudentdto) {
         StudentEntity studentEntity = mapToStudent(addStudentdto);
-        if(addStudentdto.getFeebalance() <= 0){
+        if (addStudentdto.getFeebalance() <= 0) {
             return null;
         }
-//        studentEntity.setPassword(studentEntity.getPassword());
-//        DateTimeFormatter formater = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//        String pwd  = studentEntity.getPassword().toString();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-//        String pwd = addStudentdto.getBirthdate().format(formatter);
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         String pwd = addStudentdto.getBirthdate().format(formatter);
         studentEntity.setPassword(pwd);
@@ -46,16 +40,10 @@ public class StudentService {
         return mapToResponseStudent(studentEntity);
     }
 
-//    public StudentEntity getstudentByname(String studentname) {
-//        return studentRepo.findByName(studentname)
-//                .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
-//    }
-public StudentEntity getstudentByname(String studentname) {
-    return studentRepo.findByStudentname(studentname)
-            .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
-}
-
-
+    public StudentEntity getstudentByname(String studentname) {
+        return studentRepo.findByStudentname(studentname)
+                .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
+    }
 
 
     public ResponseStudentDto updateStudentByID(Integer id, StudentUpdate studentUpdate) {
@@ -94,12 +82,11 @@ public StudentEntity getstudentByname(String studentname) {
         studentEntity.setBirthdate(addStudentdto.getBirthdate());
         studentEntity.setFathername(addStudentdto.getFathername());
         studentEntity.setFeebalance(addStudentdto.getFeebalance());
-        if(addStudentdto.getFeebalance()<= 0){
+        if (addStudentdto.getFeebalance() <= 0) {
             throw new IllegalArgumentException("Feebalance cannot be negative");
         }
         return studentEntity;
     }
-
 
 
 }

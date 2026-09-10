@@ -103,9 +103,8 @@ body {
 
     padding: 80px 10%;
 
-    background:
-            radial-gradient(circle at 10% 20%, #dbeafe 0%, transparent 30%),
-            radial-gradient(circle at 90% 80%, #e0e7ff 0%, transparent 30%);
+    background: radial-gradient(circle at 10% 20%, #dbeafe 0%, transparent 30%),
+    radial-gradient(circle at 90% 80%, #e0e7ff 0%, transparent 30%);
 }
 
 .hero-content {
@@ -255,8 +254,7 @@ body {
 
     border: 1px solid #e5e7eb;
 
-    box-shadow:
-            0 25px 60px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12);
 
     animation: float 4s ease-in-out infinite;
 }

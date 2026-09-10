@@ -18,7 +18,7 @@ public class FeePaymentController {
     FeeRecipt feeRecipt;
 
     @PostMapping("/student/{id}/feepayment")
-    public ResponseEntity<ResponseFeePaymentDTO> addfeetostuent(@RequestBody RequestFeePaymentDTO request){
+    public ResponseEntity<ResponseFeePaymentDTO> addfeetostuent(@RequestBody RequestFeePaymentDTO request) {
         ResponseFeePaymentDTO response = feeRecipt.feereciptgeneration(request);
         return ResponseEntity.ok(response);
     }

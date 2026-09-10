@@ -5,17 +5,20 @@ import com.fms.demoFMS.DTOS.AddEntity.AddTeacherdto;
 import com.fms.demoFMS.DTOS.AddEntity.ResponseTeacherdto;
 import com.fms.demoFMS.DTOS.UpdateEntity.TeacherUpdate;
 import com.fms.demoFMS.Entity.PrincipalEntity;
-import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/teachers")
 public class TeacherController {
 
     TeacherService teacherService;
+
     @Autowired
     public TeacherController(TeacherService teacherService) {
         this.teacherService = teacherService;
@@ -33,15 +36,20 @@ public class TeacherController {
         return ResponseEntity.status(200).body(principal);
     }
 
-    /*@GetMapping("/getteacher/byname")
-    public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
+    /*
+    ToDO
+    here need to use path variable insted using requestparam
+     */
+
+    @GetMapping("/getteacher/name")
+    public ResponseEntity<?> getTeacherbyname(@RequestParam String name) {
         try {
-            Te = sService.getstudentByname(name);
-            return ResponseEntity.status(200).body(studentEntity);
+            Principal principal = SecurityContextHolder.getContext().getAuthentication();
+            return ResponseEntity.status(200).body(principal);
         } catch (Exception e) {
             return ResponseEntity.status(404).body("Student not found");
         }
-    }*/
+    }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateTeacherById(@PathVariable Integer id, @RequestBody TeacherUpdate teacherUpdate) {

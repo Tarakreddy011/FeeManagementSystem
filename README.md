@@ -1,6 +1,7 @@
 # Fee Management System
 
-A secure and scalable fee management system designed for small- to medium-sized educational institutions to manage student fee transactions efficiently and generate payment receipts.
+A secure and scalable fee management system designed for small- to medium-sized educational institutions to manage
+student fee transactions efficiently and generate payment receipts.
 
 > 🚧 **Project Status:** Under Development
 
@@ -8,7 +9,8 @@ A secure and scalable fee management system designed for small- to medium-sized 
 
 The Fee Management System aims to simplify and digitize the process of managing student fees and payment transactions.
 
-The system will provide separate functionality for **administrators** and **students**, allowing institutions to manage fees, track payments, and generate receipts after successful payment verification.
+The system will provide separate functionality for **administrators** and **students**, allowing institutions to manage
+fees, track payments, and generate receipts after successful payment verification.
 
 ## ✨ Planned Features
 
@@ -245,7 +247,9 @@ Some features are still being implemented and may change as development progress
 
 ## 🎯 Project Objective
 
-The main objective of this project is to build a **secure, scalable, and reliable digital fee management solution** that reduces manual fee management, improves transaction tracking, and provides a better payment experience for both institutions and students.
+The main objective of this project is to build a **secure, scalable, and reliable digital fee management solution** that
+reduces manual fee management, improves transaction tracking, and provides a better payment experience for both
+institutions and students.
 
 ## 👨‍💻 Author
 

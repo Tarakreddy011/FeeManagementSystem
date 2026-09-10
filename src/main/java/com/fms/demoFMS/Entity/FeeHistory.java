@@ -9,18 +9,17 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name="feehistory")
+@Table(name = "feehistory")
 @Getter
 @Setter
 public class FeeHistory {
 
-    @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Integer feepaymentId;
     LocalDate date;
     LocalTime time;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer feepaymentId;
     private double amount;
-
 
 
     @ManyToOne

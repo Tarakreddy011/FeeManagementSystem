@@ -15,6 +15,7 @@ public class TeacherService {
 
 
     TeacherRepo teacherRepo;
+
     @Autowired
     public TeacherService(TeacherRepo teacherRepo) {
         this.teacherRepo = teacherRepo;
@@ -31,7 +32,7 @@ public class TeacherService {
 
     public ResponseTeacherdto getTeacherById(Integer id) {
         ResponseTeacherdto responseTeacherdto = new ResponseTeacherdto();
-        return  maptoResponseTeacherdto(teacherRepo.findById(id).get());
+        return maptoResponseTeacherdto(teacherRepo.findById(id).get());
     }
 
     public ResponseTeacherdto updateTeacherinfo(Integer id, TeacherUpdate teacherUpdate) {
@@ -50,9 +51,16 @@ public class TeacherService {
         return result;
     }
 
+
+
+    public PrincipalEntity getTeacherByName(String teachername) {
+        return teacherRepo.findByTeachername(teachername)
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+    }
+
     public PrincipalEntity mapToPrincipal(AddTeacherdto addTeacherdto) {
         PrincipalEntity principalEntity = new PrincipalEntity();
-       principalEntity.setTeacherid(addTeacherdto.getId());
+        principalEntity.setTeacherid(addTeacherdto.getId());
         principalEntity.setEmail(addTeacherdto.getEmail());
         principalEntity.setPhone(addTeacherdto.getPhone());
         principalEntity.setBirthdate(addTeacherdto.getBirthdate());

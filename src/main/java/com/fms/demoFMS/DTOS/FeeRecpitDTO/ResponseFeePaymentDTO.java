@@ -2,6 +2,7 @@ package com.fms.demoFMS.DTOS.FeeRecpitDTO;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -9,9 +10,9 @@ import java.time.LocalTime;
 @Setter
 public class ResponseFeePaymentDTO {
 
-    private Integer feepaymentId;
     LocalDate date;
     LocalTime time;
+    private Integer feepaymentId;
     private double amount;
     private Integer studentId;
     private Integer teacherId;

@@ -12,12 +12,12 @@ import java.time.LocalDate;
 public class AddTeacherdto {
 
 
-   // private int id;
+    // private int id;
     private Integer id;
     private String teachername;
     private String email;
     private int phone;
     private boolean isprincipal;
- private LocalDate birthdate;
+    private LocalDate birthdate;
 
 }
