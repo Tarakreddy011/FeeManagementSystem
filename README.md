@@ -1,4 +1,4 @@
-# Fee Management System
+ # Fee Management System
 
 A secure and scalable fee management system designed for small- to medium-sized educational institutions to manage
 student fee transactions efficiently and generate payment receipts.
@@ -18,8 +18,6 @@ fees, track payments, and generate receipts after successful payment verificatio
 * 👨‍🎓 Student portal
 * 🔐 User authentication
 * 💰 Student fee management
-* 💳 Fee payment management
-* 📊 Payment status tracking
 * 🧾 Payment receipt generation
 * ✅ Payment verification and approval
 * 🗄️ MySQL database integration
