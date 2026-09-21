@@ -1,4 +1,5 @@
-                                             # Spring security
+#                                              Spring security
+
 
 ```
 <dependency>
@@ -6,6 +7,7 @@
     <artifactId>spring-boot-starter-security</artifactId>
 </dependency>
 ```
+
 * user name = user
 * pwd = will be generated in runtime time and avalilable at console
 
@@ -30,7 +32,7 @@
                user:85604b7e-f1b2-43e4-898f-4ff5ce57f49d
                                                    * base 64
                                                   -->  dXNlcjo4NTYwNGI3ZS1mMWIyLTQzZTQtODk4Zi00ZmY1Y2U1N2Y0OWQ=
-```
+      ```
 * --> so this is how it is send in headers
 
 
@@ -42,10 +44,9 @@
 
 ## BCrypt password hashing
 * here pwd must be hased befor storing into database 
- ```
-https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
-```
-* 
+
+  https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
+
 
 
 
