@@ -37,3 +37,15 @@ and to use coustom login  we use different class for it
 *--------------------------------------------ading custom login page ------------------------------------------------
 
  link to doc https://docs.spring.io/spring-security/site/docs/5.4.9/guides/form-javaconfig.html
+
+ *-------------------------------------------------------------------------------------------------------------------
+
+## BCrypt password hashing
+* here pwd must be hased befor storing into database 
+ ```
+https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
+```
+* 
+
+
+
