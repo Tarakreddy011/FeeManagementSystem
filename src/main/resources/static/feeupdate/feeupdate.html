@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Update | PayMyFee</title>
+    <meta name="description" content="Teachers can assign or update student fee balances in the PayMyFee system.">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .update-layout {
+            padding: 50px 7%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .update-form-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 36px;
+        }
+
+        .update-form-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .update-form-card .form-sub {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* Confirmation panel */
+        .confirm-panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+            position: sticky;
+            top: 95px;
+        }
+
+        .confirm-panel-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 28px;
+        }
+
+        .confirm-panel-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .confirm-panel-body {
+            padding: 28px;
+        }
+
+        .confirm-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #9ca3af;
+        }
+
+        .confirm-empty .c-icon { font-size: 44px; margin-bottom: 12px; }
+        .confirm-empty p { font-size: 14px; line-height: 1.5; }
+
+        .confirm-filled { display: none; }
+        .confirm-filled.visible { display: block; }
+
+        .confirm-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .confirm-card-header {
+            background: linear-gradient(135deg, #111827, #1f2937);
+            color: white;
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .confirm-card-header .ch-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+
+        .confirm-card-header h4 { font-size: 15px; font-weight: 700; }
+        .confirm-card-header p  { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+
+        .confirm-card-body { padding: 20px; }
+
+        .confirm-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+        }
+
+        .confirm-row:last-child { border-bottom: none; }
+        .confirm-row span:first-child { color: #6b7280; font-size: 13px; }
+        .confirm-row span:last-child  { font-weight: 600; color: #111827; }
+
+        .balance-highlight {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-highlight span:first-child {
+            font-size: 13px;
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        .balance-highlight span:last-child {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+
+        /* Fee preview banner */
+        .fee-preview-banner {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 14px;
+            padding: 20px 22px;
+            color: white;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fee-preview-banner .fp-label { font-size: 12px; opacity: 0.7; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .fee-preview-banner .fp-value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+        .fee-preview-banner .fp-icon  { font-size: 30px; opacity: 0.5; }
+
+        @media (max-width: 900px) {
+            .update-layout { grid-template-columns: 1fr; padding: 36px 5%; }
+            .confirm-panel { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a class="logo" href="/">
+        <span class="logo-icon">₹</span>
+        <span>PayMyFee</span>
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/students/students.html">Students</a>
+        <a class="nav-link" href="/teachers/teachers.html">Teachers</a>
+        <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
+        <a class="nav-link active" href="/feeupdate/feeupdate.html">Fee Update</a>
+    </div>
+    <a class="nav-login" href="/dashboard.html">← Dashboard</a>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-inner">
+        <div class="badge">Teacher Action</div>
+        <h1>Update <span>Student Fee</span></h1>
+        <p>As a teacher, set or update the fee balance assigned to a student. All changes are logged automatically.</p>
+    </div>
+</div>
+
+<!-- Main Layout -->
+<div class="update-layout">
+
+    <!-- Left: Fee Update Form -->
+    <div class="update-form-card">
+        <h2>📋 Fee Assignment</h2>
+        <p class="form-sub">Enter the student details and the new fee balance to assign.</p>
+
+        <!-- Live fee preview -->
+        <div class="fee-preview-banner">
+            <div>
+                <div class="fp-label">NEW FEE BALANCE</div>
+                <div class="fp-value" id="feePreview">₹0</div>
+            </div>
+            <div class="fp-icon">📋</div>
+        </div>
+
+        <form id="feeUpdateForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fu-studentid">Student ID <span style="color:#ef4444;">*</span></label>
+                    <input type="number" id="fu-studentid" placeholder="e.g. 1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="fu-teacherid">Teacher ID <span style="color:#ef4444;">*</span></label>
+                    <input type="number" id="fu-teacherid" placeholder="e.g. 1" min="1" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fu-studentname">Student Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="fu-studentname" placeholder="e.g. Rahul Sharma" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fu-email">Student Email <span style="color:#ef4444;">*</span></label>
+                <input type="email" id="fu-email" placeholder="student@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fu-feebalance">New Fee Balance (₹) <span style="color:#ef4444;">*</span></label>
+                <input type="number" id="fu-feebalance" placeholder="e.g. 45000" min="0" step="1" required>
+            </div>
+
+            <div class="alert info visible" style="margin-bottom:4px;">
+                ℹ️ This will set the student's total outstanding fee balance. Use <a href="/feepayment/feepayment.html" style="color:#1d4ed8; font-weight:600;">Fee Payment</a> to record payments.
+            </div>
+
+            <div class="alert" id="updateAlert"></div>
+
+            <button type="submit" class="submit-btn" id="updateBtn" style="margin-top:16px;">
+                Assign Fee →
+            </button>
+        </form>
+    </div>
+
+    <!-- Right: Confirmation Panel -->
+    <div class="confirm-panel">
+        <div class="confirm-panel-header">
+            <h3>✅ Confirmation</h3>
+        </div>
+        <div class="confirm-panel-body">
+
+            <!-- Empty state -->
+            <div class="confirm-empty" id="confirmEmpty">
+                <div class="c-icon">📋</div>
+                <p>Fee assignment confirmation will appear here after submitting the form.</p>
+            </div>
+
+            <!-- Filled confirmation -->
+            <div class="confirm-filled" id="confirmFilled">
+
+                <div class="confirm-card">
+                    <div class="confirm-card-header">
+                        <div class="ch-icon">📋</div>
+                        <div>
+                            <h4>Fee Updated</h4>
+                            <p id="cf-datetime">—</p>
+                        </div>
+                    </div>
+                    <div class="confirm-card-body">
+                        <div class="confirm-row">
+                            <span>Student ID</span>
+                            <span id="cf-studentid">—</span>
+                        </div>
+                        <div class="confirm-row">
+                            <span>Student Name</span>
+                            <span id="cf-studentname">—</span>
+                        </div>
+                        <div class="confirm-row">
+                            <span>Email</span>
+                            <span id="cf-email">—</span>
+                        </div>
+                        <div class="confirm-row">
+                            <span>Teacher ID</span>
+                            <span id="cf-teacherid">—</span>
+                        </div>
+                        <div class="balance-highlight">
+                            <span>Fee Balance Set</span>
+                            <span id="cf-balance">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raw JSON toggle -->
+                <details style="margin-top:18px;">
+                    <summary style="font-size:13px; color:#9ca3af; cursor:pointer; font-weight:600;">
+                        View raw JSON response
+                    </summary>
+                    <pre class="result-code" id="rawJson" style="margin-top:10px;"></pre>
+                </details>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <div class="logo">
+                <span class="logo-icon">₹</span>
+                <span>PayMyFee</span>
+            </div>
+            <p>Simple, secure and smarter fee payments.</p>
+            <p>Made With ❤️</p>
+        </div>
+        <div class="footer-right">
+            <p>Made by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE · Lovely Professional University</p>
+            <p>📍 Phagwara, India</p>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 PayMyFee. All rights reserved.</div>
+</footer>
+
+<script>
+    function getHeaders() {
+        const creds = sessionStorage.getItem('fms_credentials');
+        const h = { 'Content-Type': 'application/json' };
+        if (creds) h['Authorization'] = 'Basic ' + creds;
+        return h;
+    }
+
+    // Live fee preview
+    document.getElementById('fu-feebalance').addEventListener('input', function () {
+        const val = parseInt(this.value) || 0;
+        document.getElementById('feePreview').textContent = '₹' + val.toLocaleString('en-IN');
+    });
+
+    function showAlert(id, msg, type) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.className = `alert ${type} visible`;
+    }
+    function clearAlert(id) {
+        const el = document.getElementById(id);
+        el.className = 'alert';
+        el.textContent = '';
+    }
+
+    document.getElementById('feeUpdateForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('updateAlert');
+
+        const btn = document.getElementById('updateBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Updating…';
+
+        const studentid   = Number(document.getElementById('fu-studentid').value);
+        const teacherid   = Number(document.getElementById('fu-teacherid').value);
+        const studentname = document.getElementById('fu-studentname').value.trim();
+        const email       = document.getElementById('fu-email').value.trim();
+        const feebalance  = parseInt(document.getElementById('fu-feebalance').value);
+
+        const body = { studentid, teacherid, studentname, email, feebalance };
+
+        try {
+            const res  = await fetch(`/teacherupdate/student/${studentid}/fee`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(body)
+            });
+            const data = await res.json().catch(() => null);
+
+            if (res.ok) {
+                // Populate confirmation panel
+                const now = new Date();
+                document.getElementById('cf-datetime').textContent  = now.toLocaleString('en-IN');
+                document.getElementById('cf-studentid').textContent  = data?.studentid   ?? studentid;
+                document.getElementById('cf-studentname').textContent= data?.studentname ?? studentname;
+                document.getElementById('cf-email').textContent      = data?.email       ?? email;
+                document.getElementById('cf-teacherid').textContent  = data?.teacherid   ?? teacherid;
+                document.getElementById('cf-balance').textContent    = '₹' + Number(data?.feebalance ?? feebalance).toLocaleString('en-IN');
+                document.getElementById('rawJson').textContent       = JSON.stringify(data, null, 2);
+
+                document.getElementById('confirmEmpty').style.display = 'none';
+                document.getElementById('confirmFilled').classList.add('visible');
+
+                showAlert('updateAlert', '✅ Fee balance updated successfully!', 'success');
+                e.target.reset();
+                document.getElementById('feePreview').textContent = '₹0';
+
+            } else {
+                const errMsg = data?.message || data || res.statusText;
+                showAlert('updateAlert', '❌ Update failed: ' + errMsg, 'error');
+            }
+        } catch (err) {
+            showAlert('updateAlert', '❌ Network error: ' + err.message, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Assign Fee →';
+    });
+</script>
+
+</body>
+</html>

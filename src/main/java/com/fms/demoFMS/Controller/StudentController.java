@@ -9,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/student")
 public class StudentController {
 
-
-    StudentService studentService;
+    private final StudentService studentService;
 
     @Autowired
     public StudentController(StudentService studentService) {
@@ -34,34 +32,25 @@ public class StudentController {
         return ResponseEntity.status(200).body(responseStudentDto);
     }
 
-
-    /*
-    ToDO
-    here need to use path variable insted using requestparam
-     */
-
-
     @GetMapping("/getstudent/byname")
     public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
         try {
             StudentEntity studentEntity = studentService.getstudentByname(name);
             return ResponseEntity.status(200).body(studentEntity);
         } catch (Exception e) {
-            return ResponseEntity.status(404).body("Student not found");
+            return ResponseEntity.status(404).body("Student not found with name: " + name);
         }
     }
 
-
     @PutMapping("/updatestudent/{id}")
-    public ResponseEntity<?> updateStudentByID(@PathVariable Integer id, StudentUpdate studentUpdate) {
+    public ResponseEntity<?> updateStudentByID(@PathVariable Integer id, @RequestBody StudentUpdate studentUpdate) {
         ResponseStudentDto responseStudentDto = studentService.updateStudentByID(id, studentUpdate);
-        return ResponseEntity.status(201).body(responseStudentDto);
+        return ResponseEntity.status(200).body(responseStudentDto);
     }
 
     @DeleteMapping("/deletestudent/{id}")
     public ResponseEntity<?> deleteStudentByID(@PathVariable Integer id) {
         StudentEntity result = studentService.deleteStudentByID(id);
-
         return ResponseEntity.status(200).body(result);
     }
 }

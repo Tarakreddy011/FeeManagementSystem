@@ -1,6 +1,6 @@
 package com.fms.demoFMS.DTOS.AddFee;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +17,29 @@ public class AddFeeUpdateResponseDTO {
     private String TeacherName;
     private double newfee;
 
+    @JsonProperty("teacherid")
+    public Integer getTeacherid() {
+        return teaherid;
+    }
 
+    public void setTeacherid(Integer teacherid) {
+        this.teaherid = teacherid;
+    }
+
+    @JsonProperty("teacherName")
+    public String getTeachername() {
+        return TeacherName;
+    }
+
+    public void setTeachername(String teachername) {
+        this.TeacherName = teachername;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.TeacherName = teacherName;
+    }
+
+    public String getTeacherName() {
+        return TeacherName;
+    }
 }

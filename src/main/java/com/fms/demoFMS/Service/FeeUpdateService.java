@@ -6,16 +6,14 @@ import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Entity.StudentEntity;
 import com.fms.demoFMS.Repos.StudentRepo;
 import com.fms.demoFMS.Repos.TeacherRepo;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class FeeUpdateService {
 
-    StudentRepo studentRepo;
-    TeacherRepo teacherRepo;
+    private final StudentRepo studentRepo;
+    private final TeacherRepo teacherRepo;
 
     @Autowired
     public FeeUpdateService(StudentRepo studentRepo, TeacherRepo teacherRepo) {
@@ -23,18 +21,22 @@ public class FeeUpdateService {
         this.teacherRepo = teacherRepo;
     }
 
-    @Test
     public AddFeeUpdateResponseDTO setfeeToStudentById(AddFeeUpdateRequestDTO request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Fee update request cannot be null");
+        }
+        if (request.getFeebalance() < 0) {
+            throw new IllegalArgumentException("Fee balance cannot be negative");
+        }
+
         StudentEntity student = studentRepo.findById(request.getStudentid())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + request.getStudentid()));
 
         PrincipalEntity teacher = teacherRepo.findById(request.getTeacherid())
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+                .orElseThrow(() -> new RuntimeException("Teacher not found with ID: " + request.getTeacherid()));
 
         student.setFeebalance(request.getFeebalance());
         student.setTeacher(teacher);
-
-
         studentRepo.save(student);
 
         AddFeeUpdateResponseDTO response = new AddFeeUpdateResponseDTO();
@@ -45,8 +47,6 @@ public class FeeUpdateService {
         response.setTeaherid(teacher.getTeacherid());
         response.setFeebalance(request.getFeebalance());
         response.setStudentname(student.getStudentname());
-        //response.setNewfee(request.());      //need to add thew clculated new fees
-        //response.setNewfee(request.getNewfee());
         response.setEmail(student.getEmail());
 
         return response;

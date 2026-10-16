@@ -1,17 +1,32 @@
 package com.fms.demoFMS.DTOS.UpdateEntity;
 
-
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
-import org.springframework.stereotype.Service;
+import lombok.Setter;
 
 @Getter
-@Service
+@Setter
 public class StudentUpdate {
 
-    // private int id;
+    @JsonAlias({"studentname", "student_name", "name"})
     private String studentname;
-    private String fatherName;
-    // private String email;
-    // private int feebalance;
 
+    @JsonAlias({"fathername", "fatherName", "father_name"})
+    private String fatherName;
+
+    public String getFatherName() {
+        return fatherName;
+    }
+
+    public void setFatherName(String fatherName) {
+        this.fatherName = fatherName;
+    }
+
+    public String getFathername() {
+        return fatherName;
+    }
+
+    public void setFathername(String fathername) {
+        this.fatherName = fathername;
+    }
 }

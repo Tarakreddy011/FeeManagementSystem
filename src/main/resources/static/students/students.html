@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management | PayMyFee</title>
+    <meta name="description" content="Add, search, update and delete student records in the PayMyFee system.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a class="logo" href="/">
+        <span class="logo-icon">₹</span>
+        <span>PayMyFee</span>
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link active" href="/students/students.html">Students</a>
+        <a class="nav-link" href="/teachers/teachers.html">Teachers</a>
+        <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
+        <a class="nav-link" href="/feeupdate/feeupdate.html">Fee Update</a>
+    </div>
+    <a class="nav-login" href="/dashboard.html">← Dashboard</a>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-inner">
+        <div class="badge">Student Management</div>
+        <h1>Manage <span>Students</span></h1>
+        <p>Add new students, look them up by ID or name, update their details, or remove them from the system.</p>
+    </div>
+</div>
+
+<!-- Operations -->
+<section class="ops-section">
+
+    <!-- Tab Bar -->
+    <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" data-tab="add"      onclick="switchTab('add')">➕ Add Student</button>
+        <button class="tab-btn"        data-tab="getById"  onclick="switchTab('getById')">🔍 Get by ID</button>
+        <button class="tab-btn"        data-tab="getByName"onclick="switchTab('getByName')">🔎 Get by Name</button>
+        <button class="tab-btn"        data-tab="update"   onclick="switchTab('update')">✏️ Update</button>
+        <button class="tab-btn"        data-tab="delete"   onclick="switchTab('delete')">🗑️ Delete</button>
+    </div>
+
+    <div class="ops-grid">
+
+        <!-- ===== LEFT: Operation Panels ===== -->
+        <div id="panelArea">
+
+            <!-- ADD STUDENT -->
+            <div class="op-panel active" id="panel-add">
+                <h3>
+                    <span class="op-icon">➕</span>
+                    Add New Student
+                </h3>
+                <form id="addStudentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="add-name">Full Name</label>
+                            <input type="text" id="add-name" placeholder="e.g. Rahul Sharma" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-father">Father's Name</label>
+                            <input type="text" id="add-father" placeholder="e.g. Suresh Sharma" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-email">Email Address</label>
+                        <input type="email" id="add-email" placeholder="student@example.com" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="add-fee">Fee Balance (₹)</label>
+                            <input type="number" id="add-fee" placeholder="e.g. 45000" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-dob">Date of Birth</label>
+                            <input type="date" id="add-dob" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-teacherid">Assign Teacher ID</label>
+                        <input type="number" id="add-teacherid" placeholder="e.g. 1" min="1">
+                    </div>
+                    <div class="alert" id="addAlert"></div>
+                    <button type="submit" class="submit-btn" id="addBtn">Add Student</button>
+                </form>
+            </div>
+
+            <!-- GET BY ID -->
+            <div class="op-panel" id="panel-getById">
+                <h3>
+                    <span class="op-icon">🔍</span>
+                    Get Student by ID
+                </h3>
+                <form id="getByIdForm">
+                    <div class="form-group">
+                        <label for="gid-id">Student ID</label>
+                        <input type="number" id="gid-id" placeholder="e.g. 1" min="1" required>
+                    </div>
+                    <div class="alert" id="getByIdAlert"></div>
+                    <button type="submit" class="submit-btn" id="getByIdBtn">Fetch Student</button>
+                </form>
+            </div>
+
+            <!-- GET BY NAME -->
+            <div class="op-panel" id="panel-getByName">
+                <h3>
+                    <span class="op-icon">🔎</span>
+                    Get Student by Name
+                </h3>
+                <form id="getByNameForm">
+                    <div class="form-group">
+                        <label for="gname-name">Student Name</label>
+                        <input type="text" id="gname-name" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+                    <div class="alert" id="getByNameAlert"></div>
+                    <button type="submit" class="submit-btn" id="getByNameBtn">Search Student</button>
+                </form>
+            </div>
+
+            <!-- UPDATE STUDENT -->
+            <div class="op-panel" id="panel-update">
+                <h3>
+                    <span class="op-icon">✏️</span>
+                    Update Student
+                </h3>
+                <form id="updateStudentForm">
+                    <div class="form-group">
+                        <label for="upd-id">Student ID <span style="color:#ef4444;">*</span></label>
+                        <input type="number" id="upd-id" placeholder="ID of student to update" min="1" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="upd-name">Full Name</label>
+                            <input type="text" id="upd-name" placeholder="New name (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="upd-father">Father's Name</label>
+                            <input type="text" id="upd-father" placeholder="New father name (optional)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="upd-email">Email Address</label>
+                        <input type="email" id="upd-email" placeholder="New email (optional)">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="upd-fee">Fee Balance (₹)</label>
+                            <input type="number" id="upd-fee" placeholder="New fee balance" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="upd-dob">Date of Birth</label>
+                            <input type="date" id="upd-dob">
+                        </div>
+                    </div>
+                    <div class="alert" id="updateAlert"></div>
+                    <button type="submit" class="submit-btn warning" id="updateBtn">Update Student</button>
+                </form>
+            </div>
+
+            <!-- DELETE STUDENT -->
+            <div class="op-panel" id="panel-delete">
+                <h3>
+                    <span class="op-icon">🗑️</span>
+                    Delete Student
+                </h3>
+                <form id="deleteStudentForm">
+                    <div class="form-group">
+                        <label for="del-id">Student ID</label>
+                        <input type="number" id="del-id" placeholder="e.g. 3" min="1" required>
+                    </div>
+                    <div class="alert info visible" style="margin-bottom:0; margin-top:0;">
+                        ⚠️ This action is <strong>permanent</strong>. The student record will be removed.
+                    </div>
+                    <div class="alert" id="deleteAlert"></div>
+                    <button type="submit" class="submit-btn danger" id="deleteBtn">Delete Student</button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- ===== RIGHT: Result Panel ===== -->
+        <div class="result-panel">
+            <h3>📄 API Response</h3>
+
+            <div class="result-placeholder" id="resultPlaceholder">
+                <div class="rp-icon">🎓</div>
+                <p>Submit a form on the left to see the API response here.</p>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-status">
+                    <div class="status-badge" id="statusBadge">200 OK</div>
+                    <span id="statusEndpoint" style="font-size:12px; color:#9ca3af;"></span>
+                </div>
+                <pre class="result-code" id="resultCode"></pre>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <div class="logo">
+                <span class="logo-icon">₹</span>
+                <span>PayMyFee</span>
+            </div>
+            <p>Simple, secure and smarter fee payments.</p>
+            <p>Made With ❤️</p>
+        </div>
+        <div class="footer-right">
+            <p>Made by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE · Lovely Professional University</p>
+            <p>📍 Phagwara, India</p>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 PayMyFee. All rights reserved.</div>
+</footer>
+
+<script>
+    // ── Auth helper ────────────────────────────────────────────────────
+    function getHeaders(extra) {
+        const creds = sessionStorage.getItem('fms_credentials');
+        const h = { 'Content-Type': 'application/json' };
+        if (creds) h['Authorization'] = 'Basic ' + creds;
+        return Object.assign(h, extra);
+    }
+
+    // ── Tab switcher ───────────────────────────────────────────────────
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.op-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById(`panel-${tab}`).classList.add('active');
+        resetResult();
+    }
+
+    // ── Result display ─────────────────────────────────────────────────
+    function showResult(data, status, endpoint) {
+        document.getElementById('resultPlaceholder').style.display = 'none';
+        const box = document.getElementById('resultBox');
+        box.classList.add('visible');
+
+        const badge = document.getElementById('statusBadge');
+        badge.textContent = status + (status < 300 ? ' ✓' : ' ✗');
+        badge.className = 'status-badge ' + (status < 300 ? 'success' : 'error');
+
+        document.getElementById('statusEndpoint').textContent = endpoint;
+        document.getElementById('resultCode').textContent =
+            typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
+    }
+
+    function resetResult() {
+        document.getElementById('resultPlaceholder').style.display = '';
+        document.getElementById('resultBox').classList.remove('visible');
+    }
+
+    function setLoading(btn, loading) {
+        btn.disabled = loading;
+        btn.innerHTML = loading
+            ? '<span class="spinner"></span>Processing…'
+            : btn.dataset.label;
+    }
+
+    // Cache original labels
+    document.querySelectorAll('.submit-btn').forEach(b => b.dataset.label = b.textContent.trim());
+
+    // ── Show/hide alert ────────────────────────────────────────────────
+    function showAlert(id, msg, type) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.className = `alert ${type} visible`;
+    }
+    function clearAlert(id) {
+        const el = document.getElementById(id);
+        el.className = 'alert';
+        el.textContent = '';
+    }
+
+    // ── ADD STUDENT ────────────────────────────────────────────────────
+    document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('addAlert');
+        const btn = document.getElementById('addBtn');
+        setLoading(btn, true);
+
+        const body = {
+            studentname: document.getElementById('add-name').value.trim(),
+            fathername:  document.getElementById('add-father').value.trim(),
+            email:       document.getElementById('add-email').value.trim(),
+            feebalance:  Number(document.getElementById('add-fee').value),
+            birthdate:   document.getElementById('add-dob').value
+        };
+        const tid = document.getElementById('add-teacherid').value;
+        if (tid) body.id = Number(tid);
+
+        try {
+            const res  = await fetch('/student/addstudent', { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+            const data = await res.json().catch(() => res.text());
+            showResult(data, res.status, 'POST /student/addstudent');
+            if (res.ok) {
+                showAlert('addAlert', '✅ Student added successfully!', 'success');
+                e.target.reset();
+            } else {
+                showAlert('addAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+            }
+        } catch(err) {
+            showResult({ error: err.message }, 0, 'POST /student/addstudent');
+            showAlert('addAlert', '❌ Network error: ' + err.message, 'error');
+        }
+        setLoading(btn, false);
+    });
+
+    // ── GET BY ID ──────────────────────────────────────────────────────
+    document.getElementById('getByIdForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('getByIdAlert');
+        const btn = document.getElementById('getByIdBtn');
+        setLoading(btn, true);
+
+        const id = document.getElementById('gid-id').value;
+        try {
+            const res  = await fetch(`/student/getstudent/${id}`, { headers: getHeaders() });
+            const data = await res.json().catch(() => res.text());
+            showResult(data, res.status, `GET /student/getstudent/${id}`);
+            if (!res.ok) showAlert('getByIdAlert', '❌ ' + (data || 'Student not found'), 'error');
+        } catch(err) {
+            showResult({ error: err.message }, 0, `GET /student/getstudent/${id}`);
+            showAlert('getByIdAlert', '❌ Network error: ' + err.message, 'error');
+        }
+        setLoading(btn, false);
+    });
+
+    // ── GET BY NAME ────────────────────────────────────────────────────
+    document.getElementById('getByNameForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('getByNameAlert');
+        const btn = document.getElementById('getByNameBtn');
+        setLoading(btn, true);
+
+        const name = encodeURIComponent(document.getElementById('gname-name').value.trim());
+        try {
+            const res  = await fetch(`/student/getstudent/byname?name=${name}`, { headers: getHeaders() });
+            const data = await res.json().catch(() => res.text());
+            showResult(data, res.status, `GET /student/getstudent/byname?name=${name}`);
+            if (!res.ok) showAlert('getByNameAlert', '❌ ' + (data || 'Student not found'), 'error');
+        } catch(err) {
+            showResult({ error: err.message }, 0, `GET /student/getstudent/byname`);
+            showAlert('getByNameAlert', '❌ Network error: ' + err.message, 'error');
+        }
+        setLoading(btn, false);
+    });
+
+    // ── UPDATE STUDENT ─────────────────────────────────────────────────
+    document.getElementById('updateStudentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('updateAlert');
+        const btn = document.getElementById('updateBtn');
+        setLoading(btn, true);
+
+        const id = document.getElementById('upd-id').value;
+        const body = {};
+        const name   = document.getElementById('upd-name').value.trim();
+        const father = document.getElementById('upd-father').value.trim();
+        const email  = document.getElementById('upd-email').value.trim();
+        const fee    = document.getElementById('upd-fee').value;
+        const dob    = document.getElementById('upd-dob').value;
+        if (name)   body.studentname = name;
+        if (father) body.fathername  = father;
+        if (email)  body.email       = email;
+        if (fee)    body.feebalance  = Number(fee);
+        if (dob)    body.birthdate   = dob;
+
+        try {
+            const res  = await fetch(`/student/updatestudent/${id}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+            const data = await res.json().catch(() => res.text());
+            showResult(data, res.status, `PUT /student/updatestudent/${id}`);
+            if (res.ok) {
+                showAlert('updateAlert', '✅ Student updated successfully!', 'success');
+            } else {
+                showAlert('updateAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+            }
+        } catch(err) {
+            showResult({ error: err.message }, 0, `PUT /student/updatestudent/${id}`);
+            showAlert('updateAlert', '❌ Network error: ' + err.message, 'error');
+        }
+        setLoading(btn, false);
+    });
+
+    // ── DELETE STUDENT ─────────────────────────────────────────────────
+    document.getElementById('deleteStudentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert('deleteAlert');
+        const btn = document.getElementById('deleteBtn');
+        const id  = document.getElementById('del-id').value;
+
+        if (!confirm(`Are you sure you want to delete student ID ${id}? This cannot be undone.`)) return;
+        setLoading(btn, true);
+
+        try {
+            const res  = await fetch(`/student/deletestudent/${id}`, { method: 'DELETE', headers: getHeaders() });
+            const data = await res.json().catch(() => res.text());
+            showResult(data, res.status, `DELETE /student/deletestudent/${id}`);
+            if (res.ok) {
+                showAlert('deleteAlert', '✅ Student deleted successfully.', 'success');
+                e.target.reset();
+            } else {
+                showAlert('deleteAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+            }
+        } catch(err) {
+            showResult({ error: err.message }, 0, `DELETE /student/deletestudent/${id}`);
+            showAlert('deleteAlert', '❌ Network error: ' + err.message, 'error');
+        }
+        setLoading(btn, false);
+    });
+</script>
+
+</body>
+</html>

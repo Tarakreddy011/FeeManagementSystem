@@ -1,19 +1,24 @@
 package com.fms.demoFMS.DTOS.AddFee;
 
-
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class AddFeeUpdateRequestDTO {
-    private Integer studentid;
-    private int feebalance;
-    private String studentname;
-    private Integer teacherid;
-    // private double newfee;
-    private String email;
-//    private String fathername;
-//    private String teachername;
-}
 
+    @JsonAlias({"studentid", "studentId", "student_id"})
+    private Integer studentid;
+
+    @JsonAlias({"feebalance", "feeBalance", "amount", "newfee", "newFee"})
+    private int feebalance;
+
+    @JsonAlias({"studentname", "studentName", "name"})
+    private String studentname;
+
+    @JsonAlias({"teacherid", "teacherId", "teacher_id"})
+    private Integer teacherid;
+
+    private String email;
+}

@@ -8,7 +8,7 @@ const loginButtons = [
 loginButtons.forEach(button => {
     if (button) {
         button.addEventListener("click", () => {
-            window.location.href = "/login";
+            window.location.href = "/Login/Login.html";
         });
     }
 });

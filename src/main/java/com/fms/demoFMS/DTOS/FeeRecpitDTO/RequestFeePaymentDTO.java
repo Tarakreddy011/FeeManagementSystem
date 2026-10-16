@@ -1,5 +1,6 @@
 package com.fms.demoFMS.DTOS.FeeRecpitDTO;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,14 +9,11 @@ import lombok.Setter;
 public class RequestFeePaymentDTO {
 
     private double amount;
+
+    @JsonAlias({"studentId", "studentid", "student_id"})
     private Integer studentId;
+
+    @JsonAlias({"teacherId", "teacherid", "teacher_id"})
     private Integer teacherId;
 
-
 }
-/**
- *
- * //private Integer feepaymentId;
- * //LocalDate date;
- * //LocalTime time;
- */

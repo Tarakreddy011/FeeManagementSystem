@@ -1,6 +1,5 @@
 package com.fms.demoFMS.Controller;
 
-
 import com.fms.demoFMS.DTOS.AddEntity.AddTeacherdto;
 import com.fms.demoFMS.DTOS.AddEntity.ResponseTeacherdto;
 import com.fms.demoFMS.DTOS.UpdateEntity.TeacherUpdate;
@@ -8,16 +7,16 @@ import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/teachers")
 public class TeacherController {
 
-    TeacherService teacherService;
+    private final TeacherService teacherService;
 
     @Autowired
     public TeacherController(TeacherService teacherService) {
@@ -36,34 +35,28 @@ public class TeacherController {
         return ResponseEntity.status(200).body(principal);
     }
 
-    /*
-    ToDO
-    here need to use path variable insted using requestparam
-     */
-
     @GetMapping("/getteacher/name")
     public ResponseEntity<?> getTeacherbyname(@RequestParam String name) {
         try {
-            Principal principal = SecurityContextHolder.getContext().getAuthentication();
-            return ResponseEntity.status(200).body(principal);
+            PrincipalEntity teacher = teacherService.getTeacherByName(name);
+            return ResponseEntity.status(200).body(teacher);
         } catch (Exception e) {
-            return ResponseEntity.status(404).body("Student not found");
+            return ResponseEntity.status(404).body("Teacher not found with name: " + name);
         }
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateTeacherById(@PathVariable Integer id, @RequestBody TeacherUpdate teacherUpdate) {
         ResponseTeacherdto result = teacherService.updateTeacherinfo(id, teacherUpdate);
-        return ResponseEntity.status(201).body(result);
+        return ResponseEntity.status(200).body(result);
     }
 
     @DeleteMapping("/deleteteacher/{id}")
     public ResponseEntity<?> deleteTeacherById(@PathVariable Integer id) {
         PrincipalEntity principalEntity = teacherService.deleteTeacher(id);
-        if (principalEntity == null) {
-            return ResponseEntity.status(400).body("Invalid input");
-        }
-        return ResponseEntity.status(200).body("Teacher deleted");
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Teacher deleted successfully");
+        response.put("deletedTeacherId", principalEntity.getTeacherid());
+        return ResponseEntity.status(200).body(response);
     }
-
 }

@@ -10,12 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 
-
 @Service
 public class StudentService {
 
-    @Autowired
-    StudentRepo studentRepo;
+    private final StudentRepo studentRepo;
 
     @Autowired
     public StudentService(StudentRepo studentRepo) {
@@ -23,20 +21,26 @@ public class StudentService {
     }
 
     public ResponseStudentDto addstudent(AddStudentdto addStudentdto) {
-        StudentEntity studentEntity = mapToStudent(addStudentdto);
         if (addStudentdto.getFeebalance() <= 0) {
-            return null;
+            throw new IllegalArgumentException("Fee balance must be greater than zero");
+        }
+        StudentEntity studentEntity = mapToStudent(addStudentdto);
+
+        if (addStudentdto.getBirthdate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            String pwd = addStudentdto.getBirthdate().format(formatter).replaceAll("[^0-9]", "");
+            studentEntity.setPassword(pwd);
+        } else {
+            studentEntity.setPassword("student123");
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        String pwd = addStudentdto.getBirthdate().format(formatter);
-        studentEntity.setPassword(pwd);
         studentRepo.save(studentEntity);
         return mapToResponseStudent(studentEntity);
     }
 
     public ResponseStudentDto getstudentById(Integer id) {
-        StudentEntity studentEntity = studentRepo.findById(id).get();
+        StudentEntity studentEntity = studentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + id));
         return mapToResponseStudent(studentEntity);
     }
 
@@ -45,22 +49,28 @@ public class StudentService {
                 .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));
     }
 
-
     public ResponseStudentDto updateStudentByID(Integer id, StudentUpdate studentUpdate) {
         StudentEntity existingStudentEntity = studentRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student Not found"));
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + id));
 
-        existingStudentEntity.setStudentname(studentUpdate.getStudentname());
-        existingStudentEntity.setFathername(studentUpdate.getFatherName());
+        if (studentUpdate != null) {
+            if (studentUpdate.getStudentname() != null && !studentUpdate.getStudentname().isBlank()) {
+                existingStudentEntity.setStudentname(studentUpdate.getStudentname());
+            }
+            if (studentUpdate.getFatherName() != null && !studentUpdate.getFatherName().isBlank()) {
+                existingStudentEntity.setFathername(studentUpdate.getFatherName());
+            }
+        }
 
         StudentEntity updatedStudentEntity = studentRepo.save(existingStudentEntity);
         return mapToResponseStudent(updatedStudentEntity);
     }
 
     public StudentEntity deleteStudentByID(Integer id) {
-        StudentEntity reslut = studentRepo.findById(id).get();
-        studentRepo.delete(reslut);
-        return reslut;
+        StudentEntity student = studentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + id));
+        studentRepo.delete(student);
+        return student;
     }
 
     public ResponseStudentDto mapToResponseStudent(StudentEntity studentEntity) {
@@ -70,7 +80,6 @@ public class StudentService {
         responseStudentDto.setStudentname(studentEntity.getStudentname());
         responseStudentDto.setFathername(studentEntity.getFathername());
         responseStudentDto.setFeebalance(studentEntity.getFeebalance());
-
         return responseStudentDto;
     }
 
@@ -82,11 +91,6 @@ public class StudentService {
         studentEntity.setBirthdate(addStudentdto.getBirthdate());
         studentEntity.setFathername(addStudentdto.getFathername());
         studentEntity.setFeebalance(addStudentdto.getFeebalance());
-        if (addStudentdto.getFeebalance() <= 0) {
-            throw new IllegalArgumentException("Feebalance cannot be negative");
-        }
         return studentEntity;
     }
-
-
 }

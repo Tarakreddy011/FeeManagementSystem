@@ -13,8 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class TeacherService {
 
-
-    TeacherRepo teacherRepo;
+    private final TeacherRepo teacherRepo;
 
     @Autowired
     public TeacherService(TeacherRepo teacherRepo) {
@@ -23,39 +22,53 @@ public class TeacherService {
 
     public ResponseTeacherdto addTeacher(AddTeacherdto addTeacherdto) {
         PrincipalEntity principalEntity = mapToPrincipal(addTeacherdto);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String pwd = addTeacherdto.getBirthdate().format(formatter);
-        principalEntity.setPassword(pwd);
+
+        if (addTeacherdto.getBirthdate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            String pwd = addTeacherdto.getBirthdate().format(formatter).replaceAll("[^0-9]", "");
+            principalEntity.setPassword(pwd);
+        } else {
+            principalEntity.setPassword("teacher123");
+        }
+
         teacherRepo.save(principalEntity);
         return maptoResponseTeacherdto(principalEntity);
     }
 
     public ResponseTeacherdto getTeacherById(Integer id) {
-        ResponseTeacherdto responseTeacherdto = new ResponseTeacherdto();
-        return maptoResponseTeacherdto(teacherRepo.findById(id).get());
+        PrincipalEntity teacher = teacherRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Teacher not found with ID: " + id));
+        return maptoResponseTeacherdto(teacher);
     }
 
     public ResponseTeacherdto updateTeacherinfo(Integer id, TeacherUpdate teacherUpdate) {
         PrincipalEntity existingEntity = teacherRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
-        existingEntity.setTeachername(teacherUpdate.getTeachername());
-        existingEntity.setPhone(teacherUpdate.getPhone());
+                .orElseThrow(() -> new RuntimeException("Teacher not found with ID: " + id));
+
+        if (teacherUpdate != null) {
+            if (teacherUpdate.getTeachername() != null && !teacherUpdate.getTeachername().isBlank()) {
+                existingEntity.setTeachername(teacherUpdate.getTeachername());
+            }
+            if (teacherUpdate.getPhone() > 0) {
+                existingEntity.setPhone(teacherUpdate.getPhone());
+            }
+            existingEntity.setIsprincipal(String.valueOf(teacherUpdate.isIsprincipal()));
+        }
+
         PrincipalEntity updatedEntity = teacherRepo.save(existingEntity);
         return maptoResponseTeacherdto(updatedEntity);
     }
 
     public PrincipalEntity deleteTeacher(Integer id) {
         PrincipalEntity result = teacherRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+                .orElseThrow(() -> new RuntimeException("Teacher not found with ID: " + id));
         teacherRepo.delete(result);
         return result;
     }
 
-
-
     public PrincipalEntity getTeacherByName(String teachername) {
         return teacherRepo.findByTeachername(teachername)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+                .orElseThrow(() -> new RuntimeException("Teacher not found with name: " + teachername));
     }
 
     public PrincipalEntity mapToPrincipal(AddTeacherdto addTeacherdto) {
@@ -65,6 +78,7 @@ public class TeacherService {
         principalEntity.setPhone(addTeacherdto.getPhone());
         principalEntity.setBirthdate(addTeacherdto.getBirthdate());
         principalEntity.setTeachername(addTeacherdto.getTeachername());
+        principalEntity.setIsprincipal(String.valueOf(addTeacherdto.isIsprincipal()));
         return principalEntity;
     }
 
@@ -76,5 +90,4 @@ public class TeacherService {
         responseTeacherdto.setTeachername(principalEntity.getTeachername());
         return responseTeacherdto;
     }
-
 }
