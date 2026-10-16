@@ -3,16 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management | PayMyFee</title>
+    <title>Student Directory | PayMyFee</title>
     <meta name="description" content="Add, search, update and delete student records in the PayMyFee system.">
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        .all-table-box {
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            text-align: left;
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+        .data-table tr:hover td {
+            background: #f8fafc;
+        }
+        .action-link {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
 <!-- Navigation -->
 <nav class="navbar">
     <a class="logo" href="/">
-        <span class="logo-icon">₹</span>
+        <span class="logo-icon">&#8377;</span>
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
@@ -22,15 +57,15 @@
         <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
         <a class="nav-link" href="/feeupdate/feeupdate.html">Fee Update</a>
     </div>
-    <a class="nav-login" href="/dashboard.html">← Dashboard</a>
+    <a class="nav-login" href="/dashboard.html">&larr; Dashboard</a>
 </nav>
 
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-inner">
-        <div class="badge">Student Management</div>
+        <div class="badge">Student Directory</div>
         <h1>Manage <span>Students</span></h1>
-        <p>Add new students, look them up by ID or name, update their details, or remove them from the system.</p>
+        <p>Enroll students, retrieve profiles by ID or name, view the full roster, update records, or remove entries.</p>
     </div>
 </div>
 
@@ -39,24 +74,50 @@
 
     <!-- Tab Bar -->
     <div class="tab-bar" id="tabBar">
-        <button class="tab-btn active" data-tab="add"      onclick="switchTab('add')">➕ Add Student</button>
-        <button class="tab-btn"        data-tab="getById"  onclick="switchTab('getById')">🔍 Get by ID</button>
-        <button class="tab-btn"        data-tab="getByName"onclick="switchTab('getByName')">🔎 Get by Name</button>
-        <button class="tab-btn"        data-tab="update"   onclick="switchTab('update')">✏️ Update</button>
-        <button class="tab-btn"        data-tab="delete"   onclick="switchTab('delete')">🗑️ Delete</button>
+        <button class="tab-btn active" data-tab="listAll"   onclick="switchTab('listAll'); loadAllStudents();">Roster &amp; List</button>
+        <button class="tab-btn"        data-tab="add"       onclick="switchTab('add')">Enroll Student</button>
+        <button class="tab-btn"        data-tab="getById"   onclick="switchTab('getById')">Search by ID</button>
+        <button class="tab-btn"        data-tab="getByName" onclick="switchTab('getByName')">Search by Name</button>
+        <button class="tab-btn"        data-tab="update"    onclick="switchTab('update')">Update Record</button>
+        <button class="tab-btn"        data-tab="delete"    onclick="switchTab('delete')">Delete Record</button>
     </div>
 
     <div class="ops-grid">
 
-        <!-- ===== LEFT: Operation Panels ===== -->
+        <!-- Operation Panels -->
         <div id="panelArea">
 
+            <!-- ALL STUDENTS ROSTER -->
+            <div class="op-panel active" id="panel-listAll">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0;">Enrolled Student Roster</h3>
+                    <button class="submit-btn" style="width:auto; padding:6px 14px; font-size:12px; margin:0;" onclick="loadAllStudents()">Refresh Roster</button>
+                </div>
+                <p style="color:#64748b; font-size:13px; margin-bottom:14px;">Live roster of all registered student profiles in the database.</p>
+                <div class="alert" id="listAlert"></div>
+                <div class="all-table-box">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student Name</th>
+                                <th>Guardian</th>
+                                <th>Email</th>
+                                <th>Fee Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:24px; color:#94a3b8;">Loading student records...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- ADD STUDENT -->
-            <div class="op-panel active" id="panel-add">
-                <h3>
-                    <span class="op-icon">➕</span>
-                    Add New Student
-                </h3>
+            <div class="op-panel" id="panel-add">
+                <h3>Enroll New Student</h3>
                 <form id="addStudentForm">
                     <div class="form-row">
                         <div class="form-group">
@@ -74,8 +135,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="add-fee">Fee Balance (₹)</label>
-                            <input type="number" id="add-fee" placeholder="e.g. 45000" min="0" required>
+                            <label for="add-fee">Fee Balance (&#8377;)</label>
+                            <input type="number" id="add-fee" placeholder="e.g. 45000" min="1" required>
                         </div>
                         <div class="form-group">
                             <label for="add-dob">Date of Birth</label>
@@ -83,114 +144,88 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="add-teacherid">Assign Teacher ID</label>
+                        <label for="add-teacherid">Assign Faculty Supervisor ID (Optional)</label>
                         <input type="number" id="add-teacherid" placeholder="e.g. 1" min="1">
                     </div>
                     <div class="alert" id="addAlert"></div>
-                    <button type="submit" class="submit-btn" id="addBtn">Add Student</button>
+                    <button type="submit" class="submit-btn" id="addBtn">Save Student Record</button>
                 </form>
             </div>
 
             <!-- GET BY ID -->
             <div class="op-panel" id="panel-getById">
-                <h3>
-                    <span class="op-icon">🔍</span>
-                    Get Student by ID
-                </h3>
+                <h3>Search Student by ID</h3>
                 <form id="getByIdForm">
                     <div class="form-group">
-                        <label for="gid-id">Student ID</label>
+                        <label for="gid-id">Student Identifier Number</label>
                         <input type="number" id="gid-id" placeholder="e.g. 1" min="1" required>
                     </div>
                     <div class="alert" id="getByIdAlert"></div>
-                    <button type="submit" class="submit-btn" id="getByIdBtn">Fetch Student</button>
+                    <button type="submit" class="submit-btn" id="getByIdBtn">Retrieve Profile</button>
                 </form>
             </div>
 
             <!-- GET BY NAME -->
             <div class="op-panel" id="panel-getByName">
-                <h3>
-                    <span class="op-icon">🔎</span>
-                    Get Student by Name
-                </h3>
+                <h3>Search Student by Name</h3>
                 <form id="getByNameForm">
                     <div class="form-group">
-                        <label for="gname-name">Student Name</label>
+                        <label for="gname-name">Student Full Name</label>
                         <input type="text" id="gname-name" placeholder="e.g. Rahul Sharma" required>
                     </div>
                     <div class="alert" id="getByNameAlert"></div>
-                    <button type="submit" class="submit-btn" id="getByNameBtn">Search Student</button>
+                    <button type="submit" class="submit-btn" id="getByNameBtn">Search Records</button>
                 </form>
             </div>
 
             <!-- UPDATE STUDENT -->
             <div class="op-panel" id="panel-update">
-                <h3>
-                    <span class="op-icon">✏️</span>
-                    Update Student
-                </h3>
+                <h3>Update Student Record</h3>
                 <form id="updateStudentForm">
                     <div class="form-group">
                         <label for="upd-id">Student ID <span style="color:#ef4444;">*</span></label>
-                        <input type="number" id="upd-id" placeholder="ID of student to update" min="1" required>
+                        <input type="number" id="upd-id" placeholder="Enter ID of student to update" min="1" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="upd-name">Full Name</label>
-                            <input type="text" id="upd-name" placeholder="New name (optional)">
+                            <label for="upd-name">Updated Name</label>
+                            <input type="text" id="upd-name" placeholder="Leave blank to keep unchanged">
                         </div>
                         <div class="form-group">
-                            <label for="upd-father">Father's Name</label>
-                            <input type="text" id="upd-father" placeholder="New father name (optional)">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="upd-email">Email Address</label>
-                        <input type="email" id="upd-email" placeholder="New email (optional)">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="upd-fee">Fee Balance (₹)</label>
-                            <input type="number" id="upd-fee" placeholder="New fee balance" min="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="upd-dob">Date of Birth</label>
-                            <input type="date" id="upd-dob">
+                            <label for="upd-father">Updated Father's Name</label>
+                            <input type="text" id="upd-father" placeholder="Leave blank to keep unchanged">
                         </div>
                     </div>
                     <div class="alert" id="updateAlert"></div>
-                    <button type="submit" class="submit-btn warning" id="updateBtn">Update Student</button>
+                    <button type="submit" class="submit-btn" id="updateBtn">Apply Updates</button>
                 </form>
             </div>
 
             <!-- DELETE STUDENT -->
             <div class="op-panel" id="panel-delete">
-                <h3>
-                    <span class="op-icon">🗑️</span>
-                    Delete Student
-                </h3>
+                <h3>Remove Student Entry</h3>
                 <form id="deleteStudentForm">
                     <div class="form-group">
                         <label for="del-id">Student ID</label>
                         <input type="number" id="del-id" placeholder="e.g. 3" min="1" required>
                     </div>
                     <div class="alert info visible" style="margin-bottom:0; margin-top:0;">
-                        ⚠️ This action is <strong>permanent</strong>. The student record will be removed.
+                        Notice: This operation will permanently remove the record from the database.
                     </div>
                     <div class="alert" id="deleteAlert"></div>
-                    <button type="submit" class="submit-btn danger" id="deleteBtn">Delete Student</button>
+                    <button type="submit" class="submit-btn danger" id="deleteBtn">Remove Student</button>
                 </form>
             </div>
 
         </div>
 
-        <!-- ===== RIGHT: Result Panel ===== -->
+        <!-- RIGHT: Live Result Viewer -->
         <div class="result-panel">
-            <h3>📄 API Response</h3>
+            <h3>API Response Output</h3>
 
             <div class="result-placeholder" id="resultPlaceholder">
-                <div class="rp-icon">🎓</div>
-                <p>Submit a form on the left to see the API response here.</p>
+                <div class="rp-icon" style="font-size:24px; font-weight:700; color:#2563eb;">JSON</div>
+                <p>Submit a form or select a record to inspect the API payload response here.</p>
             </div>
 
             <div class="result-box" id="resultBox">
@@ -210,23 +245,22 @@
     <div class="footer-content">
         <div class="footer-brand">
             <div class="logo">
-                <span class="logo-icon">₹</span>
+                <span class="logo-icon">&#8377;</span>
                 <span>PayMyFee</span>
             </div>
             <p>Simple, secure and smarter fee payments.</p>
-            <p>Made With ❤️</p>
+            <p>Institutional record management.</p>
         </div>
         <div class="footer-right">
-            <p>Made by <strong>Tarakeswar Reddy</strong></p>
-            <p>B.Tech CSE · Lovely Professional University</p>
-            <p>📍 Phagwara, India</p>
+            <p>Built by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE - Lovely Professional University</p>
+            <p>Phagwara, India</p>
         </div>
     </div>
-    <div class="footer-bottom">© 2026 PayMyFee. All rights reserved.</div>
+    <div class="footer-bottom">&copy; 2026 PayMyFee. All rights reserved.</div>
 </footer>
 
 <script>
-    // ── Auth helper ────────────────────────────────────────────────────
     function getHeaders(extra) {
         const creds = sessionStorage.getItem('fms_credentials');
         const h = { 'Content-Type': 'application/json' };
@@ -234,46 +268,37 @@
         return Object.assign(h, extra);
     }
 
-    // ── Tab switcher ───────────────────────────────────────────────────
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.op-panel').forEach(p => p.classList.remove('active'));
-        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        document.getElementById(`panel-${tab}`).classList.add('active');
+        const targetBtn = document.querySelector(`[data-tab="${tab}"]`);
+        const targetPanel = document.getElementById(`panel-${tab}`);
+        if (targetBtn) targetBtn.classList.add('active');
+        if (targetPanel) targetPanel.classList.add('active');
         resetResult();
     }
 
-    // ── Result display ─────────────────────────────────────────────────
     function showResult(data, status, endpoint) {
         document.getElementById('resultPlaceholder').style.display = 'none';
         const box = document.getElementById('resultBox');
         box.classList.add('visible');
 
         const badge = document.getElementById('statusBadge');
-        badge.textContent = status + (status < 300 ? ' ✓' : ' ✗');
-        badge.className = 'status-badge ' + (status < 300 ? 'success' : 'error');
+        badge.textContent = `${status} ${status >= 200 && status < 300 ? 'OK' : 'RESPONSE'}`;
+        badge.style.background = status >= 200 && status < 300 ? '#f0fdf4' : '#fef2f2';
+        badge.style.color      = status >= 200 && status < 300 ? '#15803d' : '#b91c1c';
 
         document.getElementById('statusEndpoint').textContent = endpoint;
         document.getElementById('resultCode').textContent =
-            typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
+            typeof data === 'string' ? data : JSON.stringify(data, null, 2);
     }
 
     function resetResult() {
-        document.getElementById('resultPlaceholder').style.display = '';
+        document.getElementById('resultPlaceholder').style.display = 'block';
         document.getElementById('resultBox').classList.remove('visible');
+        document.getElementById('resultCode').textContent = '';
     }
 
-    function setLoading(btn, loading) {
-        btn.disabled = loading;
-        btn.innerHTML = loading
-            ? '<span class="spinner"></span>Processing…'
-            : btn.dataset.label;
-    }
-
-    // Cache original labels
-    document.querySelectorAll('.submit-btn').forEach(b => b.dataset.label = b.textContent.trim());
-
-    // ── Show/hide alert ────────────────────────────────────────────────
     function showAlert(id, msg, type) {
         const el = document.getElementById(id);
         el.textContent = msg;
@@ -285,11 +310,50 @@
         el.textContent = '';
     }
 
-    // ── ADD STUDENT ────────────────────────────────────────────────────
+    function setLoading(btn, loading) {
+        btn.disabled = loading;
+        btn.innerHTML = loading ? '<span class="spinner"></span>Processing...' : btn.dataset.origText || btn.textContent;
+    }
+
+    // Load All Students from /student/all
+    async function loadAllStudents() {
+        clearAlert('listAlert');
+        const tbody = document.getElementById('studentTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#94a3b8;"><span class="spinner" style="border-top-color:#2563eb; display:inline-block; margin-right:8px;"></span>Fetching students...</td></tr>';
+
+        try {
+            const res = await fetch('/student/all', { headers: getHeaders() });
+            const data = await res.json().catch(() => []);
+            showResult(data, res.status, 'GET /student/all');
+
+            if (res.ok && Array.isArray(data)) {
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#94a3b8;">No students enrolled yet. Use the Enroll Student tab to add one.</td></tr>';
+                } else {
+                    tbody.innerHTML = data.map(s => `
+                        <tr>
+                            <td><strong>#${s.studentid}</strong></td>
+                            <td><strong>${s.studentname}</strong></td>
+                            <td>${s.fathername || '—'}</td>
+                            <td>${s.email || '—'}</td>
+                            <td style="color:#2563eb; font-weight:700;">&#8377;${Number(s.feebalance || 0).toLocaleString('en-IN')}</td>
+                        </tr>
+                    `).join('');
+                }
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#ef4444;">Could not load student records.</td></tr>';
+            }
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:#ef4444;">Network error: ${err.message}</td></tr>`;
+        }
+    }
+
+    // Add Student
     document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAlert('addAlert');
         const btn = document.getElementById('addBtn');
+        btn.dataset.origText = 'Save Student Record';
         setLoading(btn, true);
 
         const body = {
@@ -307,23 +371,24 @@
             const data = await res.json().catch(() => res.text());
             showResult(data, res.status, 'POST /student/addstudent');
             if (res.ok) {
-                showAlert('addAlert', '✅ Student added successfully!', 'success');
+                showAlert('addAlert', 'Student enrolled successfully.', 'success');
                 e.target.reset();
             } else {
-                showAlert('addAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+                showAlert('addAlert', 'Failed: ' + (data?.message || res.statusText), 'error');
             }
         } catch(err) {
             showResult({ error: err.message }, 0, 'POST /student/addstudent');
-            showAlert('addAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('addAlert', 'Network error: ' + err.message, 'error');
         }
         setLoading(btn, false);
     });
 
-    // ── GET BY ID ──────────────────────────────────────────────────────
+    // Get by ID
     document.getElementById('getByIdForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAlert('getByIdAlert');
         const btn = document.getElementById('getByIdBtn');
+        btn.dataset.origText = 'Retrieve Profile';
         setLoading(btn, true);
 
         const id = document.getElementById('gid-id').value;
@@ -331,19 +396,20 @@
             const res  = await fetch(`/student/getstudent/${id}`, { headers: getHeaders() });
             const data = await res.json().catch(() => res.text());
             showResult(data, res.status, `GET /student/getstudent/${id}`);
-            if (!res.ok) showAlert('getByIdAlert', '❌ ' + (data || 'Student not found'), 'error');
+            if (!res.ok) showAlert('getByIdAlert', (data?.message || 'Student record not found.'), 'error');
         } catch(err) {
             showResult({ error: err.message }, 0, `GET /student/getstudent/${id}`);
-            showAlert('getByIdAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('getByIdAlert', 'Network error: ' + err.message, 'error');
         }
         setLoading(btn, false);
     });
 
-    // ── GET BY NAME ────────────────────────────────────────────────────
+    // Get by Name
     document.getElementById('getByNameForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAlert('getByNameAlert');
         const btn = document.getElementById('getByNameBtn');
+        btn.dataset.origText = 'Search Records';
         setLoading(btn, true);
 
         const name = encodeURIComponent(document.getElementById('gname-name').value.trim());
@@ -351,58 +417,54 @@
             const res  = await fetch(`/student/getstudent/byname?name=${name}`, { headers: getHeaders() });
             const data = await res.json().catch(() => res.text());
             showResult(data, res.status, `GET /student/getstudent/byname?name=${name}`);
-            if (!res.ok) showAlert('getByNameAlert', '❌ ' + (data || 'Student not found'), 'error');
+            if (!res.ok) showAlert('getByNameAlert', (data || 'Student not found with that name.'), 'error');
         } catch(err) {
             showResult({ error: err.message }, 0, `GET /student/getstudent/byname`);
-            showAlert('getByNameAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('getByNameAlert', 'Network error: ' + err.message, 'error');
         }
         setLoading(btn, false);
     });
 
-    // ── UPDATE STUDENT ─────────────────────────────────────────────────
+    // Update Student
     document.getElementById('updateStudentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAlert('updateAlert');
         const btn = document.getElementById('updateBtn');
+        btn.dataset.origText = 'Apply Updates';
         setLoading(btn, true);
 
         const id = document.getElementById('upd-id').value;
         const body = {};
         const name   = document.getElementById('upd-name').value.trim();
         const father = document.getElementById('upd-father').value.trim();
-        const email  = document.getElementById('upd-email').value.trim();
-        const fee    = document.getElementById('upd-fee').value;
-        const dob    = document.getElementById('upd-dob').value;
         if (name)   body.studentname = name;
-        if (father) body.fathername  = father;
-        if (email)  body.email       = email;
-        if (fee)    body.feebalance  = Number(fee);
-        if (dob)    body.birthdate   = dob;
+        if (father) body.fatherName  = father;
 
         try {
             const res  = await fetch(`/student/updatestudent/${id}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
             const data = await res.json().catch(() => res.text());
             showResult(data, res.status, `PUT /student/updatestudent/${id}`);
             if (res.ok) {
-                showAlert('updateAlert', '✅ Student updated successfully!', 'success');
+                showAlert('updateAlert', 'Student record updated successfully.', 'success');
             } else {
-                showAlert('updateAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+                showAlert('updateAlert', 'Failed: ' + (data?.message || res.statusText), 'error');
             }
         } catch(err) {
             showResult({ error: err.message }, 0, `PUT /student/updatestudent/${id}`);
-            showAlert('updateAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('updateAlert', 'Network error: ' + err.message, 'error');
         }
         setLoading(btn, false);
     });
 
-    // ── DELETE STUDENT ─────────────────────────────────────────────────
+    // Delete Student
     document.getElementById('deleteStudentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAlert('deleteAlert');
         const btn = document.getElementById('deleteBtn');
         const id  = document.getElementById('del-id').value;
 
-        if (!confirm(`Are you sure you want to delete student ID ${id}? This cannot be undone.`)) return;
+        if (!confirm(`Are you sure you want to delete student #${id}? This cannot be undone.`)) return;
+        btn.dataset.origText = 'Remove Student';
         setLoading(btn, true);
 
         try {
@@ -410,17 +472,20 @@
             const data = await res.json().catch(() => res.text());
             showResult(data, res.status, `DELETE /student/deletestudent/${id}`);
             if (res.ok) {
-                showAlert('deleteAlert', '✅ Student deleted successfully.', 'success');
+                showAlert('deleteAlert', 'Student deleted successfully.', 'success');
                 e.target.reset();
             } else {
-                showAlert('deleteAlert', '❌ Failed: ' + (data?.message || res.statusText), 'error');
+                showAlert('deleteAlert', 'Failed: ' + (data?.message || res.statusText), 'error');
             }
         } catch(err) {
             showResult({ error: err.message }, 0, `DELETE /student/deletestudent/${id}`);
-            showAlert('deleteAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('deleteAlert', 'Network error: ' + err.message, 'error');
         }
         setLoading(btn, false);
     });
+
+    // Auto load roster on initial load
+    loadAllStudents();
 </script>
 
 </body>

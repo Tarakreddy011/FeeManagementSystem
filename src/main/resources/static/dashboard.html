@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | PayMyFee</title>
-    <meta name="description" content="PayMyFee Admin Dashboard — manage students, teachers, fees and payments from one place.">
+    <meta name="description" content="PayMyFee Admin Dashboard - manage students, teachers, fees and payments with live statistics.">
     <link rel="stylesheet" href="styles.css">
     <style>
         .welcome-bar {
@@ -48,13 +48,13 @@
         .dash-section-sub {
             color: #6b7280;
             font-size: 15px;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
         }
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
         .stat-card {
             background: white;
@@ -75,18 +75,83 @@
             margin-bottom: 14px;
         }
         .stat-icon {
-            width: 40px; height: 40px;
+            width: 42px; height: 42px;
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
         }
-        .stat-icon.blue { background: #eff6ff; }
-        .stat-icon.green { background: #f0fdf4; }
-        .stat-icon.orange { background: #fff7ed; }
-        .stat-icon.purple { background: #faf5ff; }
+        .stat-icon svg { width: 22px; height: 22px; }
+        .stat-icon.blue   { background: #eff6ff; color: #2563eb; }
+        .stat-icon.green  { background: #f0fdf4; color: #16a34a; }
+        .stat-icon.orange { background: #fff7ed; color: #ea580c; }
+        .stat-icon.purple { background: #faf5ff; color: #9333ea; }
+
         .stat-label { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
         .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
         .stat-sub { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+
+        /* Recent Activity Table */
+        .recent-box {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 50px;
+        }
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .recent-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .recent-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .recent-table th {
+            text-align: left;
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .recent-table td {
+            padding: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+        .recent-table tr:last-child td { border-bottom: none; }
+        .recent-badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+
+        .refresh-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: #f8fafc;
+            transition: 0.2s;
+        }
+        .refresh-pill:hover { background: #e2e8f0; color: #0f172a; }
 
         @media (max-width: 900px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -94,6 +159,7 @@
         @media (max-width: 550px) {
             .stats-row { grid-template-columns: 1fr; }
             .dash-section-title { font-size: 24px; }
+            .recent-table th, .recent-table td { padding: 8px; font-size: 12px; }
         }
     </style>
 </head>
@@ -101,14 +167,14 @@
 
 <!-- Welcome Bar -->
 <div class="welcome-bar" id="welcomeBar">
-    <div>Signed in as: <span id="userDisplay">user</span></div>
+    <div>Signed in as: <span id="userDisplay">Admin</span></div>
     <button class="logout-btn" id="logoutBtn">Sign Out</button>
 </div>
 
 <!-- Navigation -->
 <nav class="navbar">
     <a class="logo" href="/">
-        <span class="logo-icon">₹</span>
+        <span class="logo-icon">&#8377;</span>
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
@@ -118,15 +184,15 @@
         <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
         <a class="nav-link" href="/feeupdate/feeupdate.html">Fee Update</a>
     </div>
-    <a class="nav-login" href="/Login/Login.html">⚙ Settings</a>
+    <a class="nav-login" href="/Login/Login.html">Settings</a>
 </nav>
 
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-inner">
-        <div class="badge">Admin Dashboard</div>
-        <h1>Welcome to <span>PayMyFee</span></h1>
-        <p>Manage students, teachers, fee collection and balance updates — all from one central place.</p>
+        <div class="badge">Administrative Hub</div>
+        <h1>Overview and <span>Live Controls</span></h1>
+        <p>Monitor real-time student registrations, faculty headcount, fee collection records, and system health from one place.</p>
     </div>
 </div>
 
@@ -134,95 +200,151 @@
 <main>
     <section class="dashboard-section">
 
-        <!-- Stats -->
-        <div class="section-label">Overview</div>
-        <h2 class="dash-section-title">Quick Stats</h2>
-        <p class="dash-section-sub">Live summary of your fee management system.</p>
+        <!-- Stats Section -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+            <div>
+                <div class="section-label">Real-Time Metrics</div>
+                <h2 class="dash-section-title">Live System Overview</h2>
+            </div>
+            <button class="refresh-pill" id="refreshBtn" onclick="loadDashboardStats()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Refresh Data</span>
+            </button>
+        </div>
+        <p class="dash-section-sub">Data updates automatically from your database records.</p>
 
         <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-top">
                     <div>
                         <div class="stat-label">Total Students</div>
-                        <div class="stat-value">—</div>
+                        <div class="stat-value" id="statStudents">...</div>
                     </div>
-                    <div class="stat-icon blue">🎓</div>
+                    <div class="stat-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
                 </div>
-                <div class="stat-sub">Registered in the system</div>
+                <div class="stat-sub">Enrolled in database</div>
             </div>
+
             <div class="stat-card">
                 <div class="stat-top">
                     <div>
-                        <div class="stat-label">Total Teachers</div>
-                        <div class="stat-value">—</div>
+                        <div class="stat-label">Faculty Members</div>
+                        <div class="stat-value" id="statTeachers">...</div>
                     </div>
-                    <div class="stat-icon green">👩‍🏫</div>
+                    <div class="stat-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
                 </div>
-                <div class="stat-sub">Active faculty members</div>
+                <div class="stat-sub">Active teaching staff</div>
             </div>
+
             <div class="stat-card">
                 <div class="stat-top">
                     <div>
                         <div class="stat-label">Fees Collected</div>
-                        <div class="stat-value">₹—</div>
+                        <div class="stat-value" id="statFees">&#8377;0</div>
                     </div>
-                    <div class="stat-icon orange">💰</div>
+                    <div class="stat-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </div>
                 </div>
-                <div class="stat-sub">Total payments processed</div>
+                <div class="stat-sub" id="statTransactionsSub">0 payments processed</div>
             </div>
+
             <div class="stat-card">
                 <div class="stat-top">
                     <div>
-                        <div class="stat-label">System Status</div>
-                        <div class="stat-value" style="font-size:18px; color:#16a34a;">● Online</div>
+                        <div class="stat-label">Service Health</div>
+                        <div class="stat-value" style="font-size:20px; color:#16a34a;" id="statHealth">Active</div>
                     </div>
-                    <div class="stat-icon purple">🔐</div>
+                    <div class="stat-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
                 </div>
-                <div class="stat-sub">All services running</div>
+                <div class="stat-sub">REST APIs operational</div>
             </div>
         </div>
 
-        <!-- Action Cards -->
-        <div class="section-label">Modules</div>
-        <h2 class="dash-section-title">What would you like to do?</h2>
-        <p class="dash-section-sub">Select a module to get started.</p>
+        <!-- Recent Transactions -->
+        <div class="recent-box">
+            <div class="recent-header">
+                <div>
+                    <h3>Recent Fee Transactions</h3>
+                    <p style="color:#64748b; font-size:13px; margin-top:2px;">Most recent payments recorded in the database.</p>
+                </div>
+                <a href="/feepayment/feepayment.html" style="font-size:13px; color:#2563eb; text-decoration:none; font-weight:600;">+ New Payment</a>
+            </div>
+
+            <table class="recent-table">
+                <thead>
+                    <tr>
+                        <th>Receipt ID</th>
+                        <th>Student</th>
+                        <th>Staff In-Charge</th>
+                        <th>Amount Paid</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="recentTransactionsBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">Loading transactions...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Navigation Tiles -->
+        <div class="section-label">Management Modules</div>
+        <h2 class="dash-section-title">Institutional Actions</h2>
+        <p class="dash-section-sub">Choose a module below to inspect records or perform operations.</p>
 
         <div class="dashboard-grid">
 
             <a class="dash-card" href="/students/students.html" id="studentCard">
-                <div class="dash-card-icon">🎓</div>
-                <div class="dash-card-body">
-                    <h3>Student Management</h3>
-                    <p>Add new students, search by ID or name, update details, and remove students from the system.</p>
+                <div class="dash-card-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                 </div>
-                <div class="dash-card-arrow">→</div>
+                <div class="dash-card-body">
+                    <h3>Student Directory</h3>
+                    <p>Register students, inspect complete rosters, look up profiles by ID or name, edit records, or remove entries.</p>
+                </div>
+                <div class="dash-card-arrow">&rarr;</div>
             </a>
 
             <a class="dash-card" href="/teachers/teachers.html" id="teacherCard">
-                <div class="dash-card-icon green">👩‍🏫</div>
-                <div class="dash-card-body">
-                    <h3>Teacher Management</h3>
-                    <p>Register new teachers, view teacher profiles, update information, and manage faculty records.</p>
+                <div class="dash-card-icon green">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <div class="dash-card-arrow">→</div>
+                <div class="dash-card-body">
+                    <h3>Faculty Directory</h3>
+                    <p>Onboard teachers, inspect staff assignments, search faculty by ID or name, and update permissions.</p>
+                </div>
+                <div class="dash-card-arrow">&rarr;</div>
             </a>
 
             <a class="dash-card" href="/feepayment/feepayment.html" id="feePaymentCard">
-                <div class="dash-card-icon orange">💳</div>
-                <div class="dash-card-body">
-                    <h3>Fee Payment</h3>
-                    <p>Process student fee payments and generate instant receipts with payment confirmation details.</p>
+                <div class="dash-card-icon orange">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
-                <div class="dash-card-arrow">→</div>
+                <div class="dash-card-body">
+                    <h3>Fee Payment Collection</h3>
+                    <p>Collect fee installments, compute outstanding balances, and produce verified transaction slips instantly.</p>
+                </div>
+                <div class="dash-card-arrow">&rarr;</div>
             </a>
 
             <a class="dash-card" href="/feeupdate/feeupdate.html" id="feeUpdateCard">
-                <div class="dash-card-icon purple">📋</div>
-                <div class="dash-card-body">
-                    <h3>Fee Update</h3>
-                    <p>Teachers can assign or update fee balances for individual students with full audit trail.</p>
+                <div class="dash-card-icon purple">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
-                <div class="dash-card-arrow">→</div>
+                <div class="dash-card-body">
+                    <h3>Fee Allocation</h3>
+                    <p>Assign new tuition fees or adjust account balances with automatic linking to assigned faculty supervisors.</p>
+                </div>
+                <div class="dash-card-arrow">&rarr;</div>
             </a>
 
         </div>
@@ -235,23 +357,30 @@
     <div class="footer-content">
         <div class="footer-brand">
             <div class="logo">
-                <span class="logo-icon">₹</span>
+                <span class="logo-icon">&#8377;</span>
                 <span>PayMyFee</span>
             </div>
-            <p>Simple, secure and smarter fee payments.</p>
-            <p>Made With ❤️</p>
+            <p>Institutional fee management simplified.</p>
+            <p>Developed with attention to precision and security.</p>
         </div>
         <div class="footer-right">
-            <p>Made by <strong>Tarakeswar Reddy</strong></p>
-            <p>B.Tech CSE · Lovely Professional University</p>
-            <p>📍 Phagwara, India</p>
+            <p>Built by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE - Lovely Professional University</p>
+            <p>Phagwara, India</p>
         </div>
     </div>
-    <div class="footer-bottom">© 2026 PayMyFee. All rights reserved.</div>
+    <div class="footer-bottom">&copy; 2026 PayMyFee. All rights reserved.</div>
 </footer>
 
 <script>
-    // Show stored username and roles
+    function getHeaders() {
+        const creds = sessionStorage.getItem('fms_credentials');
+        const h = { 'Content-Type': 'application/json' };
+        if (creds) h['Authorization'] = 'Basic ' + creds;
+        return h;
+    }
+
+    // Display user session information
     const email = sessionStorage.getItem('fms_email');
     const rolesStr = sessionStorage.getItem('fms_roles');
     if (email) {
@@ -266,11 +395,72 @@
         document.getElementById('userDisplay').textContent = display;
     }
 
-    // Logout
+    // Sign out handler
     document.getElementById('logoutBtn').addEventListener('click', () => {
         sessionStorage.clear();
         window.location.href = '/Login/Login.html';
     });
+
+    // Real-Time Statistics Loader
+    async function loadDashboardStats() {
+        const btn = document.getElementById('refreshBtn');
+        btn.style.opacity = '0.5';
+
+        try {
+            const res = await fetch('/api/dashboard/stats', { headers: getHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+
+                document.getElementById('statStudents').textContent = Number(data.totalStudents || 0).toLocaleString('en-IN');
+                document.getElementById('statTeachers').textContent = Number(data.totalTeachers || 0).toLocaleString('en-IN');
+                document.getElementById('statFees').textContent = '\u20B9' + Number(data.totalFeesCollected || 0).toLocaleString('en-IN');
+                document.getElementById('statTransactionsSub').textContent = `${data.totalPayments || 0} payments recorded`;
+                document.getElementById('statHealth').textContent = data.systemStatus || 'Active';
+
+                // Render recent transactions table
+                const tbody = document.getElementById('recentTransactionsBody');
+                if (data.recentTransactions && data.recentTransactions.length > 0) {
+                    tbody.innerHTML = data.recentTransactions.map(t => `
+                        <tr>
+                            <td><strong>#${t.paymentId}</strong></td>
+                            <td>${t.studentName} <span style="color:#94a3b8; font-size:12px;">(ID: ${t.studentId})</span></td>
+                            <td>${t.teacherName}</td>
+                            <td style="color:#2563eb; font-weight:700;">&#8377;${Number(t.amount).toLocaleString('en-IN')}</td>
+                            <td>${t.date} ${t.time ? 'at ' + t.time.substring(0, 5) : ''}</td>
+                            <td><span class="recent-badge">Completed</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">No fee transactions recorded yet.</td></tr>`;
+                }
+            } else {
+                // If not authenticated or endpoints not yet populated, try fallback count endpoints
+                fallbackStats();
+            }
+        } catch (err) {
+            fallbackStats();
+        }
+
+        setTimeout(() => { btn.style.opacity = '1'; }, 300);
+    }
+
+    async function fallbackStats() {
+        try {
+            const [sRes, tRes] = await Promise.all([
+                fetch('/student/all', { headers: getHeaders() }).then(r => r.ok ? r.json() : []).catch(() => []),
+                fetch('/teachers/all', { headers: getHeaders() }).then(r => r.ok ? r.json() : []).catch(() => [])
+            ]);
+            document.getElementById('statStudents').textContent = sRes.length;
+            document.getElementById('statTeachers').textContent = tRes.length;
+            document.getElementById('statFees').textContent = '\u20B90';
+            document.getElementById('statHealth').textContent = 'Active';
+            document.getElementById('recentTransactionsBody').innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">No fee transactions recorded yet.</td></tr>`;
+        } catch (e) {}
+    }
+
+    // Auto-fetch on page load and every 30 seconds
+    loadDashboardStats();
+    setInterval(loadDashboardStats, 30000);
 </script>
 
 </body>

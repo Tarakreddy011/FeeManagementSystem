@@ -35,6 +35,11 @@ public class TeacherController {
         return ResponseEntity.status(200).body(principal);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllTeachers() {
+        return ResponseEntity.ok(teacherService.getAllTeachers());
+    }
+
     @GetMapping("/getteacher/name")
     public ResponseEntity<?> getTeacherbyname(@RequestParam String name) {
         try {

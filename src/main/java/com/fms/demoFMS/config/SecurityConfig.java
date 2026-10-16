@@ -38,8 +38,8 @@ public class SecurityConfig {
                                 "/feeupdate/**"
                         ).permitAll()
 
-                        // 2. Auth verification endpoints require valid credentials
-                        .requestMatchers("/api/auth/**").authenticated()
+                        // 2. Auth and Dashboard endpoints require valid credentials
+                        .requestMatchers("/api/auth/**", "/api/dashboard/**").authenticated()
 
                         // 3. API endpoints are secured with Spring Security
                         .requestMatchers("/student/**").authenticated()

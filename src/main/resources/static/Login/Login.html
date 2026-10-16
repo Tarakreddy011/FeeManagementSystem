@@ -31,7 +31,7 @@
         <p class="login-subtitle">Sign in to manage your fee payments</p>
 
         <div class="login-error" id="loginError">
-            ⚠️ Invalid credentials. Please try again.
+            Invalid credentials. Please verify your email and password.
         </div>
 
         <form class="login-form" id="loginForm" autocomplete="on">
@@ -118,7 +118,7 @@
             window.location.href = '/dashboard.html';
 
         } catch (err) {
-            errorBox.textContent = '⚠️ Could not reach server. Please check your connection.';
+            errorBox.textContent = 'Could not reach server. Please check your connection.';
             errorBox.classList.add('visible');
             submitBtn.innerHTML = 'Sign In →';
             submitBtn.disabled = false;

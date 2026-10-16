@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fee Payment | PayMyFee</title>
+    <title>Fee Payment Collection | PayMyFee</title>
     <meta name="description" content="Process student fee payments and generate instant receipts with PayMyFee.">
     <link rel="stylesheet" href="../styles.css">
     <style>
-        /* Extra styles specific to fee payment page */
         .pay-layout {
             padding: 50px 7%;
             display: grid;
@@ -60,7 +59,6 @@
             opacity: 0.6;
         }
 
-        /* Receipt panel */
         .receipt-panel {
             background: #fff;
             border: 1px solid #e5e7eb;
@@ -95,7 +93,12 @@
             color: #9ca3af;
         }
 
-        .receipt-empty .r-icon { font-size: 44px; margin-bottom: 12px; }
+        .receipt-empty .r-icon {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
         .receipt-empty p { font-size: 14px; }
 
         .receipt-filled { display: none; }
@@ -129,7 +132,7 @@
 <!-- Navigation -->
 <nav class="navbar">
     <a class="logo" href="/">
-        <span class="logo-icon">₹</span>
+        <span class="logo-icon">&#8377;</span>
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
@@ -139,7 +142,7 @@
         <a class="nav-link active" href="/feepayment/feepayment.html">Fee Payment</a>
         <a class="nav-link" href="/feeupdate/feeupdate.html">Fee Update</a>
     </div>
-    <a class="nav-login" href="/dashboard.html">← Dashboard</a>
+    <a class="nav-login" href="/dashboard.html">&larr; Dashboard</a>
 </nav>
 
 <!-- Page Header -->
@@ -147,7 +150,7 @@
     <div class="page-header-inner">
         <div class="badge">Fee Collection</div>
         <h1>Process <span>Fee Payment</span></h1>
-        <p>Record a student fee payment, deduct from their balance, and generate an instant payment receipt.</p>
+        <p>Record an installment, compute updated fee balance, and generate an immediate verified transaction receipt.</p>
     </div>
 </div>
 
@@ -156,16 +159,16 @@
 
     <!-- Left: Payment Form -->
     <div class="pay-form-card">
-        <h2>💳 Payment Details</h2>
-        <p class="form-sub">Fill in the details below to process a fee payment.</p>
+        <h2>Payment Transaction Details</h2>
+        <p class="form-sub">Enter the student and teacher details along with the payment amount.</p>
 
         <!-- Live amount display -->
         <div class="amount-display" id="amountDisplay">
             <div>
                 <div class="amt-label">Payment Amount</div>
-                <div class="amt-value" id="amountPreview">₹0</div>
+                <div class="amt-value" id="amountPreview">&#8377;0</div>
             </div>
-            <div class="amt-icon">₹</div>
+            <div class="amt-icon">&#8377;</div>
         </div>
 
         <form id="feePaymentForm">
@@ -175,25 +178,24 @@
                     <input type="number" id="fp-studentId" placeholder="e.g. 1" min="1" required>
                 </div>
                 <div class="form-group">
-                    <label for="fp-teacherId">Teacher ID <span style="color:#ef4444;">*</span></label>
+                    <label for="fp-teacherId">Staff / Teacher ID <span style="color:#ef4444;">*</span></label>
                     <input type="number" id="fp-teacherId" placeholder="e.g. 1" min="1" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="fp-amount">Amount to Pay (₹) <span style="color:#ef4444;">*</span></label>
+                <label for="fp-amount">Amount to Pay (&#8377;) <span style="color:#ef4444;">*</span></label>
                 <input type="number" id="fp-amount" placeholder="e.g. 5000" min="1" step="0.01" required>
             </div>
 
-            <!-- Info box -->
             <div class="alert info visible" style="margin-bottom: 4px;">
-                ℹ️ The amount will be deducted from the student's current fee balance. A receipt will be generated automatically.
+                Notice: The amount will be deducted immediately from the student's outstanding fee balance.
             </div>
 
             <div class="alert" id="payAlert"></div>
 
             <button type="submit" class="submit-btn" id="payBtn" style="margin-top:16px;">
-                Pay Now →
+                Confirm Payment &rarr;
             </button>
         </form>
     </div>
@@ -201,14 +203,14 @@
     <!-- Right: Receipt Panel -->
     <div class="receipt-panel">
         <div class="receipt-panel-header">
-            <h3>🧾 Payment Receipt</h3>
+            <h3>Transaction Receipt</h3>
         </div>
         <div class="receipt-panel-body">
 
             <!-- Empty state -->
             <div class="receipt-empty" id="receiptEmpty">
-                <div class="r-icon">🧾</div>
-                <p>Your payment receipt will appear here once the transaction is processed.</p>
+                <div class="r-icon">RECEIPT</div>
+                <p>Your payment receipt will generate here once the transaction is processed.</p>
             </div>
 
             <!-- Filled receipt -->
@@ -218,30 +220,30 @@
                     <div class="receipt-header">
                         <div>
                             <h4>Fee Payment Receipt</h4>
-                            <p id="r-datetime">—</p>
+                            <p id="r-datetime">&mdash;</p>
                         </div>
-                        <span style="font-size:28px; margin-left:auto;">🧾</span>
+                        <span class="balance-chip" style="margin-left:auto;">Paid</span>
                     </div>
                     <div class="receipt-body">
                         <div class="receipt-row">
                             <span>Receipt ID</span>
-                            <span id="r-id">—</span>
+                            <span id="r-id">&mdash;</span>
                         </div>
                         <div class="receipt-row">
                             <span>Student ID</span>
-                            <span id="r-studentId">—</span>
+                            <span id="r-studentId">&mdash;</span>
                         </div>
                         <div class="receipt-row">
                             <span>Teacher ID</span>
-                            <span id="r-teacherId">—</span>
+                            <span id="r-teacherId">&mdash;</span>
                         </div>
                         <div class="receipt-row">
                             <span>Amount Paid</span>
-                            <span id="r-amount" style="color:#2563eb; font-weight:700;">—</span>
+                            <span id="r-amount" style="color:#2563eb; font-weight:700;">&mdash;</span>
                         </div>
                         <div class="receipt-total">
-                            <span>New Balance</span>
-                            <span id="r-balance">—</span>
+                            <span>Remaining Balance</span>
+                            <span id="r-balance">&mdash;</span>
                         </div>
                     </div>
                 </div>
@@ -249,7 +251,7 @@
                 <!-- Raw JSON -->
                 <details style="margin-top:18px;">
                     <summary style="font-size:13px; color:#9ca3af; cursor:pointer; font-weight:600;">
-                        View raw JSON response
+                        Inspect raw API response
                     </summary>
                     <pre class="result-code" id="rawJson" style="margin-top:10px;"></pre>
                 </details>
@@ -265,19 +267,19 @@
     <div class="footer-content">
         <div class="footer-brand">
             <div class="logo">
-                <span class="logo-icon">₹</span>
+                <span class="logo-icon">&#8377;</span>
                 <span>PayMyFee</span>
             </div>
             <p>Simple, secure and smarter fee payments.</p>
-            <p>Made With ❤️</p>
+            <p>Institutional record management.</p>
         </div>
         <div class="footer-right">
-            <p>Made by <strong>Tarakeswar Reddy</strong></p>
-            <p>B.Tech CSE · Lovely Professional University</p>
-            <p>📍 Phagwara, India</p>
+            <p>Built by <strong>Tarakeswar Reddy</strong></p>
+            <p>B.Tech CSE - Lovely Professional University</p>
+            <p>Phagwara, India</p>
         </div>
     </div>
-    <div class="footer-bottom">© 2026 PayMyFee. All rights reserved.</div>
+    <div class="footer-bottom">&copy; 2026 PayMyFee. All rights reserved.</div>
 </footer>
 
 <script>
@@ -291,7 +293,7 @@
     // Live amount preview
     document.getElementById('fp-amount').addEventListener('input', function () {
         const val = parseFloat(this.value) || 0;
-        document.getElementById('amountPreview').textContent = '₹' + val.toLocaleString('en-IN');
+        document.getElementById('amountPreview').textContent = '\u20B9' + val.toLocaleString('en-IN');
     });
 
     function showAlert(id, msg, type) {
@@ -311,7 +313,7 @@
 
         const btn = document.getElementById('payBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Processing…';
+        btn.innerHTML = '<span class="spinner"></span>Processing...';
 
         const studentId = Number(document.getElementById('fp-studentId').value);
         const teacherId = Number(document.getElementById('fp-teacherId').value);
@@ -328,36 +330,35 @@
             const data = await res.json().catch(() => null);
 
             if (res.ok && data) {
-                // Populate receipt
                 const dt = new Date();
                 const dateStr = data.date ? data.date : dt.toLocaleDateString('en-IN');
                 const timeStr = data.time ? data.time : dt.toLocaleTimeString('en-IN');
 
                 document.getElementById('r-datetime').textContent   = `${dateStr} at ${timeStr}`;
-                document.getElementById('r-id').textContent         = data.feepaymentId ?? '—';
+                document.getElementById('r-id').textContent         = '#' + (data.feepaymentId ?? '—');
                 document.getElementById('r-studentId').textContent  = data.studentId ?? studentId;
                 document.getElementById('r-teacherId').textContent  = data.teacherId ?? teacherId;
-                document.getElementById('r-amount').textContent     = '₹' + Number(data.amount ?? amount).toLocaleString('en-IN');
-                document.getElementById('r-balance').textContent    = '₹' + Number(data.newfeebalanceafterpayment ?? 0).toLocaleString('en-IN');
+                document.getElementById('r-amount').textContent     = '\u20B9' + Number(data.amount ?? amount).toLocaleString('en-IN');
+                document.getElementById('r-balance').textContent    = '\u20B9' + Number(data.newfeebalanceafterpayment ?? 0).toLocaleString('en-IN');
                 document.getElementById('rawJson').textContent      = JSON.stringify(data, null, 2);
 
                 document.getElementById('receiptEmpty').style.display  = 'none';
                 document.getElementById('receiptFilled').classList.add('visible');
 
-                showAlert('payAlert', '✅ Payment processed successfully! Receipt generated.', 'success');
+                showAlert('payAlert', 'Payment recorded successfully. Receipt generated.', 'success');
                 e.target.reset();
-                document.getElementById('amountPreview').textContent = '₹0';
+                document.getElementById('amountPreview').textContent = '\u20B90';
 
             } else {
                 const errMsg = data?.message || data || res.statusText;
-                showAlert('payAlert', '❌ Payment failed: ' + errMsg, 'error');
+                showAlert('payAlert', 'Payment failed: ' + errMsg, 'error');
             }
         } catch (err) {
-            showAlert('payAlert', '❌ Network error: ' + err.message, 'error');
+            showAlert('payAlert', 'Network error: ' + err.message, 'error');
         }
 
         btn.disabled = false;
-        btn.textContent = 'Pay Now →';
+        btn.innerHTML = 'Confirm Payment &rarr;';
     });
 </script>
 

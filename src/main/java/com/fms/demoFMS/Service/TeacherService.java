@@ -41,6 +41,12 @@ public class TeacherService {
         return maptoResponseTeacherdto(teacher);
     }
 
+    public java.util.List<ResponseTeacherdto> getAllTeachers() {
+        return teacherRepo.findAll().stream()
+                .map(this::maptoResponseTeacherdto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public ResponseTeacherdto updateTeacherinfo(Integer id, TeacherUpdate teacherUpdate) {
         PrincipalEntity existingEntity = teacherRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Teacher not found with ID: " + id));

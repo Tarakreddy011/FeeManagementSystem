@@ -44,6 +44,12 @@ public class StudentService {
         return mapToResponseStudent(studentEntity);
     }
 
+    public java.util.List<ResponseStudentDto> getAllStudents() {
+        return studentRepo.findAll().stream()
+                .map(this::mapToResponseStudent)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public StudentEntity getstudentByname(String studentname) {
         return studentRepo.findByStudentname(studentname)
                 .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentname));

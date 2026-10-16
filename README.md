@@ -1,146 +1,147 @@
-# 🎓 PayMyFee - Modern Fee Management System
+# PayMyFee - Institutional Fee Management System
 
-A full-stack, secure, and responsive Fee Management System designed for educational institutions to streamline student record management, faculty management, fee allocation, payment processing, and instant receipt generation.
-
----
-
-## 📌 Table of Contents
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [System Architecture](#-system-architecture)
-- [Tech Stack](#-tech-stack)
-- [Frontend Design System](#-frontend-design-system)
-- [Spring Security & User Authentication](#-spring-security--user-authentication)
-- [REST API Reference](#-rest-api-reference)
-  - [Authentication](#authentication-apis)
-  - [Student Management](#student-management-apis)
-  - [Teacher Management](#teacher-management-apis)
-  - [Fee Payment](#fee-payment-apis)
-  - [Fee Allocation & Updates](#fee-allocation--update-apis)
-- [Database Schema](#-database-schema)
-- [Installation & Getting Started](#-installation--getting-started)
-- [Recent Bug Fixes & Improvements](#-recent-bug-fixes--improvements)
-- [Author & Acknowledgements](#-author--acknowledgements)
+PayMyFee is a full-stack web application built to digitize student fee transactions, administrative oversight, and financial record-keeping for colleges and educational institutions. It was developed to eliminate manual paperwork, long office queues, and untracked fee payment receipts.
 
 ---
 
-## 🌟 Overview
+## The Motivation Behind This Project
 
-**PayMyFee** simplifies institutional finance. It replaces manual fee registers with a centralized web platform featuring:
-- Role-aware administrative dashboard and quick KPI statistics.
-- Interactive student & teacher CRUD workflows with live JSON inspectors.
-- Real-time fee payment processing with instant, formatted digital receipts.
-- Teacher fee balance assignment with confirmation summaries.
-- Spring Security with hybrid authentication supporting pre-configured admin accounts and database-backed student/faculty accounts.
+Anyone who has stood in line at a university accounts department knows the friction: receipts get misplaced, account ledgers disagree, students are anxious about whether their fees were cleared before exams, and administrative staff are burdened with manual reconciliation.
+
+PayMyFee was built to address that exact problem. The goal was simple: create a clean, dependable system where teachers can assign and review student dues, students can process payments transparently, and administrators can track real-time collection metrics without digging through spreadsheets.
 
 ---
 
-## ✨ Key Features
+## Core Capabilities
 
-- **Responsive Multi-Page Portal:** Handcrafted modern UI following an integrated design system (`styles.css`), compatible across desktops, tablets, and mobile devices.
-- **Instant Digital Receipts:** Generates timestamped payment receipts with balance calculation after every fee payment.
-- **Live Response Inspector:** Embedded JSON preview panels on all operation pages for immediate feedback and developer transparency.
-- **Robust Security:** Spring Security configuration with HTTP Basic Auth, CORS configuration, CSRF protection tailored for REST endpoints, and `sessionStorage` credential management.
-- **Global Error Handling:** Structured exception responses with correct HTTP status codes (400 Bad Request, 404 Not Found, 500 Internal Server Error).
+- **Real-Time Administrative Dashboard:** Live KPI cards for total enrolled students, faculty headcount, total revenue collected, and system health status. It includes a live recent-transactions table that refreshes automatically.
+- **Student Directory & Roster:** View complete student rosters with instant balance inspection, enroll new students, search by ID or name, update personal details, and delete obsolete entries.
+- **Faculty Management:** Onboard teachers and department heads, look up instructors by ID or name, view faculty rosters, and assign supervisory responsibilities.
+- **Fee Payment Processor:** Enter student and teacher identifiers, specify the payment installment, compute the updated balance automatically, and generate an on-screen transaction receipt with unique payment identifiers.
+- **Fee Allocation & Adjustments:** Faculty can set total fee amounts or revise existing fee balances for individual students.
+- **Live API Response Inspector:** Every module includes a side-by-side JSON output viewer, giving developers and administrators full transparency into the exact payload returned by the server.
 
 ---
 
-## 🏗️ System Architecture
+## Architectural & Engineering Decisions
+
+### 1. Spring Security Without Browser Dialog Hijacking
+In many standard Spring Security setups using HTTP Basic Authentication, an invalid login or 401 response triggers the `WWW-Authenticate: Basic` header. Web browsers intercept this header and display an intrusive native modal prompt over the screen, forcing the user to type credentials a second time.
+
+To solve this, PayMyFee configures a custom `AuthenticationEntryPoint` in `SecurityConfig.java`. It returns a structured JSON 401 response without the `WWW-Authenticate` challenge header. This allows the custom login page to handle authentication cleanly in JavaScript and display friendly on-page alerts.
+
+### 2. Sanitized Date of Birth Passwords
+By design, default passwords for newly enrolled students and teachers are derived from their birthdates (`ddMMyyyy`). In real-world data entry, dates often arrive with hyphens or slashes (such as `15-08-2005` or `2005/08/15`). Both the service layer and the custom `PasswordEncoder` strip non-digit characters so that users can log in smoothly whether they type `15082005` or `15-08-2005`.
+
+### 3. Case-Insensitive DTO Mapping
+In Java and JavaScript, variable naming often creates edge-case bugs (such as `fatherName` vs `fathername`, or `studentId` vs `studentid`). Jackson `@JsonAlias` annotations were placed on all request DTOs so the API reliably deserializes incoming JSON regardless of client-side casing variations.
+
+### 4. Resilient Exception Handling
+Instead of throwing generic 500 Internal Server Errors when a record does not exist, the global exception handler inspects runtime errors and maps them to appropriate HTTP status codes:
+- HTTP 404 for missing students or teachers.
+- HTTP 400 for invalid inputs, zero-dollar payments, or negative balances.
+- HTTP 500 for uncaught system exceptions.
+
+---
+
+## System Architecture
 
 ```text
-       Browser / Client (Desktop / Mobile)
-                       │
-       ┌───────────────┴───────────────┐
-       ▼                               ▼
-Static UI Pages                   Fetch API Calls
-(HTML5, CSS3, JS)            (Basic Auth: btoa(user:pwd))
-                                       │
-                                       ▼
+       Browser / Client (Desktop & Mobile)
+                       |
+       +---------------+---------------+
+       |                               |
+Static Web Pages                Fetch API Calls
+(HTML5, CSS3, JS)          (Headers: Basic Base64)
+                                       |
+                                       v
                        Spring Security Filter Chain
-                       ├── Static Assets (permitAll)
-                       ├── CORS / CSRF Disabled for REST
-                       └── API Endpoints (authenticated)
-                                       │
-                                       ▼
+                       |-- Static Assets (permitAll)
+                       |-- CORS & CSRF Configured
+                       \-- REST APIs (authenticated)
+                                       |
+                                       v
                               REST Controllers
-                 ┌─────────────┬───────┴─────┬────────────┐
-                 ▼             ▼             ▼            ▼
+                 +-------------+-------+-----+------------+
+                 |             |             |            |
              Student        Teacher     FeePayment    FeeUpdate
-                 │             │             │            │
-                 └─────────────┼─────────────┼────────────┘
-                               ▼
-                          Service Layer
-                (Validation, Business Logic, DTO Mapping)
-                               │
-                               ▼
-                       Spring Data JPA Repos
-                               │
-                               ▼
-                         MySQL Database
-                 (student, teacher, feehistory)
+                 |             |             |            |
+                 +-------------+-------+-----+------------+
+                                       |
+                                       v
+                                 Service Layer
+                      (Validation, Password Logic, DTOs)
+                                       |
+                                       v
+                             Spring Data JPA Repos
+                                       |
+                                       v
+                                MySQL Database
+                        (student, teacher, feehistory)
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
-- **Language:** Java 21 / 25
+- **Java:** JDK 21 / 25
 - **Framework:** Spring Boot, Spring Security, Spring Data JPA, Spring Web MVC
-- **Data Persistence:** Hibernate ORM
-- **Database:** MySQL
-- **Build Tool:** Maven (with `maven-compiler-plugin` & Lombok annotation processing)
-- **Utilities:** Lombok, Jackson
+- **ORM / Persistence:** Hibernate
+- **Database:** MySQL 8.0+
+- **Build System:** Apache Maven with Lombok annotation processor
 
 ### Frontend
-- **Languages:** HTML5, CSS3 (Vanilla custom design system), JavaScript (ES6+ Fetch API)
-- **Design Elements:** Glassmorphism, CSS Grid & Flexbox, live previews, tabbed interfaces, responsive breakpoints.
+- **Markup & Styling:** Vanilla HTML5, CSS3 (custom responsive design system)
+- **Scripting:** ES6+ JavaScript using native Fetch API
+- **Design Philosophy:** Minimalist typography, card-based layouts, responsive breakpoints, high accessibility, zero emoji dependencies.
 
 ---
 
-## 🎨 Frontend Design System
+## Frontend Page Directory
 
-All frontend pages share a unified design language established in [`index.html`](src/main/resources/static/index.html) and [`styles.css`](src/main/resources/static/styles.css):
+All frontend templates are stored under `src/main/resources/static/` and share the master stylesheet `styles.css`:
 
-| Page | File Location | Purpose & Capabilities |
-| :--- | :--- | :--- |
-| **Landing Page** | [`src/main/resources/static/index.html`](src/main/resources/static/index.html) | Brand introduction, feature cards, live fee sample widget, and direct links to the login portal. |
-| **Login Portal** | [`src/main/resources/static/Login/Login.html`](src/main/resources/static/Login/Login.html) | Glassmorphic login card, authenticates against `/api/auth/login`, stores session credentials. |
-| **Dashboard** | [`src/main/resources/static/dashboard.html`](src/main/resources/static/dashboard.html) | KPI metrics overview, current user & role badge, quick links to all operations, and 1-click Sign Out. |
-| **Student Management** | [`src/main/resources/static/students/students.html`](src/main/resources/static/students/students.html) | 5 operation tabs: Add Student, Get by ID, Get by Name, Update Student, and Delete Student. |
-| **Teacher Management** | [`src/main/resources/static/teachers/teachers.html`](src/main/resources/static/teachers/teachers.html) | 5 operation tabs: Add Teacher, Get by ID, Get by Name, Update Teacher, and Delete Teacher. |
-| **Fee Payment** | [`src/main/resources/static/feepayment/feepayment.html`](src/main/resources/static/feepayment/feepayment.html) | Payment processing form, live amount preview, and auto-generated digital receipt slip. |
-| **Fee Update** | [`src/main/resources/static/feeupdate/feeupdate.html`](src/main/resources/static/feeupdate/feeupdate.html) | Teacher fee balance allocation form, balance preview banner, and audit confirmation summary. |
+| Page Path | Purpose |
+| :--- | :--- |
+| `index.html` | Public landing page introducing PayMyFee, feature overviews, and payment workflow preview. |
+| `Login/Login.html` | Authentication portal validating against `/api/auth/login` and saving session tokens. |
+| `dashboard.html` | Central administrative command center with live metrics and recent transaction tables. |
+| `students/students.html` | Complete student management: live roster, enrollment form, ID/name lookups, updates, and deletion. |
+| `teachers/teachers.html` | Faculty directory: live staff roster, registration form, ID/name lookups, updates, and deletion. |
+| `feepayment/feepayment.html` | Fee collection interface with real-time amount preview and digital receipt generation. |
+| `feeupdate/feeupdate.html` | Teacher fee assignment interface with balance preview and audit confirmation card. |
 
 ---
 
-## 🔐 Spring Security & User Authentication
+## User Authentication & Accounts
 
-### Default & Test Accounts
-The application includes pre-configured administrative accounts as well as database-driven authentication:
+The system supports both built-in administrative accounts and dynamic database-driven credentials:
 
-| Username | Password | Role | Description |
+### Pre-Configured Accounts
+| Username | Password | Assigned Role | Description |
 | :--- | :--- | :--- | :--- |
-| `admin` | `admin123` | `ROLE_ADMIN` | Primary administrative account |
-| `user` | `pwd` | `ROLE_ADMIN` | Configured via `application.properties` |
-| `teacher` | `teacher123` | `ROLE_TEACHER` | Built-in test faculty account |
-| `student` | `student123` | `ROLE_STUDENT` | Built-in test student account |
+| `admin` | `admin123` | ROLE_ADMIN | Full administrative access |
+| `user` | `pwd` | ROLE_ADMIN | Default credentials from `application.properties` |
+| `teacher` | `teacher123` | ROLE_TEACHER | Pre-configured faculty testing account |
+| `student` | `student123` | ROLE_STUDENT | Pre-configured student testing account |
 
 ### Database-Driven Accounts
-- **Faculty / Teachers:** Teachers registered in the `teacher` table can log in using their **email** or **full name**; their initial password is their birthdate in `yyyy-MM-dd` format (e.g. `1990-05-20`). If `isprincipal` is `true`, they receive `ROLE_ADMIN`.
-- **Students:** Students registered in the `student` table can log in using their **email** or **student name**; their initial password is their birthdate in `ddMMyyyy` format (e.g. `15082002`).
+- **Teachers:** Any faculty member saved in the `teacher` table can sign in using their **email** or **full name**. Their initial password is their birthdate in `ddMMyyyy` format (e.g. `20051988`). If flagged as `isprincipal`, they receive administrative privileges.
+- **Students:** Enrolled students can sign in using their **email** or **student name**. Their default password is their birthdate in `ddMMyyyy` format (e.g. `15082005`).
 
 ---
 
-## 🔄 REST API Reference
+## REST API Reference
 
-All protected endpoints require HTTP Basic Authentication (`Authorization: Basic <base64(user:password)>`).
+All protected endpoints require an `Authorization: Basic <base64>` header.
 
-### Authentication APIs
+### 1. Authentication Endpoints
 
-#### 1. Verify Login Credentials
-- **Endpoint:** `GET /api/auth/login`
-- **Response `200 OK`:**
+#### Verify Credentials
+- **Method:** `GET`
+- **Path:** `/api/auth/login`
+- **Success Response (200 OK):**
   ```json
   {
     "status": "success",
@@ -150,98 +151,131 @@ All protected endpoints require HTTP Basic Authentication (`Authorization: Basic
   }
   ```
 
-#### 2. Get Current Session User
-- **Endpoint:** `GET /api/auth/me`
+#### Current Session Info
+- **Method:** `GET`
+- **Path:** `/api/auth/me`
 
 ---
 
-### Student Management APIs
+### 2. Dashboard Analytics
 
-#### 1. Add Student
-- **Endpoint:** `POST /student/addstudent`
+#### Real-Time Institutional Statistics
+- **Method:** `GET`
+- **Path:** `/api/dashboard/stats`
+- **Success Response (200 OK):**
+  ```json
+  {
+    "totalStudents": 24,
+    "totalTeachers": 6,
+    "totalFeesCollected": 185000.0,
+    "totalPayments": 14,
+    "systemStatus": "Online",
+    "recentTransactions": [
+      {
+        "paymentId": 102,
+        "studentId": 4,
+        "studentName": "Rahul Sharma",
+        "teacherName": "Dr. Priya Mehta",
+        "amount": 5000.0,
+        "date": "2026-10-16",
+        "time": "11:45:00"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 3. Student Management
+
+#### Get All Students
+- **Method:** `GET`
+- **Path:** `/student/all`
+- **Success Response (200 OK):** Array of all registered students.
+
+#### Enroll Student
+- **Method:** `POST`
+- **Path:** `/student/addstudent`
 - **Request Body:**
   ```json
   {
     "studentname": "Rahul Sharma",
     "fathername": "Rajesh Sharma",
-    "email": "rahul@example.com",
+    "email": "rahul.sharma@example.com",
     "feebalance": 45000,
-    "birthdate": "2002-08-15"
+    "birthdate": "2005-08-15"
   }
   ```
-- **Response `201 Created`:** Returns created student object with generated password and ID.
+- **Success Response (201 Created):** Created student record with generated password and ID.
 
-#### 2. Get Student by ID
-- **Endpoint:** `GET /student/getstudent/{id}`
-- **Response `200 OK`:** Returns student details; `404 Not Found` if the record does not exist.
+#### Get Student by ID
+- **Method:** `GET`
+- **Path:** `/student/getstudent/{id}`
 
-#### 3. Get Student by Name
-- **Endpoint:** `GET /student/getstudent/byname?name=Rahul%20Sharma`
-- **Response `200 OK`:** Returns student entity matching name.
+#### Get Student by Name
+- **Method:** `GET`
+- **Path:** `/student/getstudent/byname?name=Rahul%20Sharma`
 
-#### 4. Update Student
-- **Endpoint:** `PUT /student/updatestudent/{id}`
+#### Update Student Details
+- **Method:** `PUT`
+- **Path:** `/student/updatestudent/{id}`
 - **Request Body:**
   ```json
   {
-    "studentname": "Rahul S. Sharma",
+    "studentname": "Rahul Kumar Sharma",
     "fatherName": "Rajesh Kumar Sharma"
   }
   ```
-- **Response `200 OK`:** Returns updated student details.
 
-#### 5. Delete Student
-- **Endpoint:** `DELETE /student/deletestudent/{id}`
-- **Response `200 OK`:** Returns deleted student entity.
+#### Delete Student
+- **Method:** `DELETE`
+- **Path:** `/student/deletestudent/{id}`
 
 ---
 
-### Teacher Management APIs
+### 4. Teacher Management
 
-#### 1. Register Teacher
-- **Endpoint:** `POST /teachers/addteacher`
+#### Get All Teachers
+- **Method:** `GET`
+- **Path:** `/teachers/all`
+
+#### Register Teacher
+- **Method:** `POST`
+- **Path:** `/teachers/addteacher`
 - **Request Body:**
   ```json
   {
     "teachername": "Dr. Priya Mehta",
     "email": "priya.mehta@university.edu",
     "phone": 9876543210,
-    "birthdate": "1985-04-12",
+    "birthdate": "1988-05-20",
     "isprincipal": false
   }
   ```
-- **Response `201 Created`:** Returns registered teacher profile.
 
-#### 2. Get Teacher by ID
-- **Endpoint:** `GET /teachers/getteacher/{id}`
-- **Response `200 OK`:** Returns teacher details; `404 Not Found` if missing.
+#### Get Teacher by ID
+- **Method:** `GET`
+- **Path:** `/teachers/getteacher/{id}`
 
-#### 3. Get Teacher by Name
-- **Endpoint:** `GET /teachers/getteacher/name?name=Dr.%20Priya%20Mehta`
-- **Response `200 OK`:** Returns teacher record matching name.
+#### Get Teacher by Name
+- **Method:** `GET`
+- **Path:** `/teachers/getteacher/name?name=Dr.%20Priya%20Mehta`
 
-#### 4. Update Teacher
-- **Endpoint:** `PUT /teachers/update/{id}`
-- **Request Body:**
-  ```json
-  {
-    "teachername": "Prof. Priya Mehta",
-    "phone": 9811122233,
-    "isprincipal": true
-  }
-  ```
-- **Response `200 OK`:** Returns updated profile.
+#### Update Teacher Record
+- **Method:** `PUT`
+- **Path:** `/teachers/update/{id}`
 
-#### 5. Delete Teacher
-- **Endpoint:** `DELETE /teachers/deleteteacher/{id}`
-- **Response `200 OK`:** Returns deletion confirmation message and ID.
+#### Delete Teacher
+- **Method:** `DELETE`
+- **Path:** `/teachers/deleteteacher/{id}`
 
 ---
 
-### Fee Payment APIs
+### 5. Fee Collection & Updates
 
 #### Process Fee Payment
-- **Endpoint:** `POST /paymyfee/student/student/{studentId}/feepayment`
+- **Method:** `POST`
+- **Path:** `/paymyfee/student/student/{studentId}/feepayment`
 - **Request Body:**
   ```json
   {
@@ -250,7 +284,7 @@ All protected endpoints require HTTP Basic Authentication (`Authorization: Basic
     "amount": 5000.00
   }
   ```
-- **Response `200 OK`:**
+- **Success Response (200 OK):**
   ```json
   {
     "feepaymentId": 101,
@@ -259,36 +293,32 @@ All protected endpoints require HTTP Basic Authentication (`Authorization: Basic
     "amount": 5000.0,
     "newfeebalanceafterpayment": 40000.0,
     "date": "2026-10-16",
-    "time": "11:05:00"
+    "time": "11:30:15"
   }
   ```
 
----
-
-### Fee Allocation & Update APIs
-
-#### Assign / Update Student Fee Balance
-- **Endpoint:** `POST /teacherupdate/student/{studentId}/fee`
+#### Assign or Update Fee Balance
+- **Method:** `POST`
+- **Path:** `/teacherupdate/student/{studentId}/fee`
 - **Request Body:**
   ```json
   {
     "studentid": 1,
     "teacherid": 1,
     "studentname": "Rahul Sharma",
-    "email": "rahul@example.com",
+    "email": "rahul.sharma@example.com",
     "feebalance": 45000
   }
   ```
-- **Response `200 OK`:** Returns updated student fee confirmation.
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
-The database utilizes three relational tables created via Hibernate (`ddl-auto=update`):
+The database uses three normalized relational tables automatically maintained by Hibernate (`spring.jpa.hibernate.ddl-auto=update`):
 
 ```sql
--- 1. Teacher / Principal Table
+-- 1. Faculty / Administrator Table
 CREATE TABLE teacher (
     teacherid INT AUTO_INCREMENT PRIMARY KEY,
     teachername VARCHAR(255),
@@ -312,7 +342,7 @@ CREATE TABLE student (
     FOREIGN KEY (teacher_id) REFERENCES teacher(teacherid)
 );
 
--- 3. Fee History / Transaction Table
+-- 3. Fee History & Transaction Ledger
 CREATE TABLE feehistory (
     feepayment_id INT AUTO_INCREMENT PRIMARY KEY,
     amount DOUBLE,
@@ -327,73 +357,57 @@ CREATE TABLE feehistory (
 
 ---
 
-## ⚙️ Installation & Getting Started
+## Setup & Running Locally
 
 ### Prerequisites
-- **Java Development Kit (JDK):** Version 21 or higher
-- **Maven:** Version 3.8+ (or use the included `./mvnw`)
-- **MySQL Database Server:** 8.0+
+- JDK 21 or 25 installed and available on your PATH.
+- MySQL 8.0+ service running locally.
+- Apache Maven (or use the included `./mvnw` script).
 
-### 1. Database Configuration
-Create your MySQL database:
+### 1. Database Setup
+Log in to MySQL and create the database schema:
 ```sql
 CREATE DATABASE paymyfee;
 ```
 
-Update your connection credentials in [`src/main/resources/application.properties`](src/main/resources/application.properties):
+Update your database credentials in `src/main/resources/application.properties`:
 ```properties
 spring.datasource.url=jdbc:mysql://127.0.0.1:3306/paymyfee
 spring.datasource.username=root
-spring.datasource.password=YOUR_PASSWORD
+spring.datasource.password=YOUR_MYSQL_PASSWORD
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 
-# Application Admin Credentials
 spring.security.user.name=user
 spring.security.user.password=pwd
 ```
 
-### 2. Build the Project
+### 2. Compile the Project
 ```bash
 ./mvnw clean compile -DskipTests
 ```
 
-### 3. Run the Application
+### 3. Run the Spring Boot Server
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### 4. Access the Web Application
-Open your browser and navigate to:
-- **Landing Page:** `http://localhost:8080/index.html`
-- **Login Portal:** `http://localhost:8080/Login/Login.html`
-- **Admin Dashboard:** `http://localhost:8080/dashboard.html`
+### 4. Open in Your Browser
+- Public Landing Page: `http://localhost:8080/index.html`
+- Sign-In Portal: `http://localhost:8080/Login/Login.html`
+- Administrative Dashboard: `http://localhost:8080/dashboard.html`
 
-Sign in with default credentials `admin` / `admin123` or `user` / `pwd`.
-
----
-
-## 🐛 Recent Bug Fixes & Improvements
-
-1. **Compiler & Lombok Processor:** Configured `maven-compiler-plugin` (v3.13.0) with explicit Lombok annotation processing paths in `pom.xml`, resolving Java 21/25 compilation issues.
-2. **Missing `@RequestBody` in Student Controller:** Added missing `@RequestBody` to `updateStudentByID`, enabling proper JSON payload deserialization.
-3. **Teacher by Name Lookup:** Fixed `getTeacherbyname` returning the Spring Security context object instead of the actual `PrincipalEntity` from the database.
-4. **Service Null Safety:** Replaced unchecked `.findById().get()` calls across `StudentService` and `TeacherService` with `.orElseThrow()` to prevent `NoSuchElementException` crashes on non-existent records.
-5. **Removed `@Test` Annotation from Production Code:** Cleaned up `FeeUpdateService` which had a `@Test` annotation on a production service method.
-6. **Case-Insensitive DTO Mapping:** Added `@JsonAlias` to `StudentUpdate`, `AddFeeUpdateRequestDTO`, and `RequestFeePaymentDTO` to seamlessly support multiple casing styles (`fathername`, `fatherName`, `studentId`, `studentid`).
-7. **Accurate Global Exception Status Codes:** Updated `GlobalExecption` handler to return HTTP 404 for "Not Found", HTTP 400 for validation errors, and HTTP 500 for internal server errors.
-8. **Navigation & Route Integrity:** Standardized all static page links and fixed `script.js` to route cleanly to `/Login/Login.html`.
+Sign in using `admin` / `admin123` or `user` / `pwd` to begin exploring.
 
 ---
 
-## 👨‍💻 Author & Acknowledgements
+## Author & Project Info
 
-- **Author:** Tarakeswar Reddy
-- **Degree:** B.Tech Computer Science and Engineering
+- **Developer:** Tarakeswar Reddy
+- **Academic Program:** B.Tech in Computer Science and Engineering
 - **Institution:** Lovely Professional University, Phagwara, India
-- **Repository:** [https://github.com/Tarakreddy011/FMS.git](https://github.com/Tarakreddy011/FMS.git)
+- **Repository:** https://github.com/Tarakreddy011/FMS.git
 
----
-*© 2026 PayMyFee. Simple, secure and smarter fee payments.*
+Copyright 2026 PayMyFee. Built for dependable institutional record management.

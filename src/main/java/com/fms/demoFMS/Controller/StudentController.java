@@ -32,6 +32,11 @@ public class StudentController {
         return ResponseEntity.status(200).body(responseStudentDto);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllStudents() {
+        return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
     @GetMapping("/getstudent/byname")
     public ResponseEntity<?> getstudentbyname(@RequestParam String name) {
         try {
