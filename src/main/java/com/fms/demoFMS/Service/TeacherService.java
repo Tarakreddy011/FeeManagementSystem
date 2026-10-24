@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherService {
@@ -41,10 +43,10 @@ public class TeacherService {
         return maptoResponseTeacherdto(teacher);
     }
 
-    public java.util.List<ResponseTeacherdto> getAllTeachers() {
+    public List<ResponseTeacherdto> getAllTeachers() {
         return teacherRepo.findAll().stream()
                 .map(this::maptoResponseTeacherdto)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     public ResponseTeacherdto updateTeacherinfo(Integer id, TeacherUpdate teacherUpdate) {
@@ -58,7 +60,6 @@ public class TeacherService {
             if (teacherUpdate.getPhone() > 0) {
                 existingEntity.setPhone(teacherUpdate.getPhone());
             }
-            existingEntity.setIsprincipal(String.valueOf(teacherUpdate.isIsprincipal()));
         }
 
         PrincipalEntity updatedEntity = teacherRepo.save(existingEntity);
@@ -84,7 +85,6 @@ public class TeacherService {
         principalEntity.setPhone(addTeacherdto.getPhone());
         principalEntity.setBirthdate(addTeacherdto.getBirthdate());
         principalEntity.setTeachername(addTeacherdto.getTeachername());
-        principalEntity.setIsprincipal(String.valueOf(addTeacherdto.isIsprincipal()));
         return principalEntity;
     }
 

@@ -14,6 +14,15 @@ public class StudentUpdate {
     @JsonAlias({"fathername", "fatherName", "father_name"})
     private String fatherName;
 
+    @JsonAlias({"email", "student_email"})
+    private String email;
+
+    @JsonAlias({"feebalance", "fee_balance", "feeBalance"})
+    private Double feebalance;
+
+    @JsonAlias({"teacherId", "teacher_id", "teacherid"})
+    private Integer teacherId;
+
     public String getFatherName() {
         return fatherName;
     }
@@ -30,3 +39,4 @@ public class StudentUpdate {
         this.fatherName = fathername;
     }
 }
+

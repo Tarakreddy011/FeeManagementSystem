@@ -107,15 +107,28 @@
 
             const data = await res.json().catch(() => ({}));
 
-            // Store credentials and roles in sessionStorage
+            // Store credentials, role and user info in sessionStorage
             sessionStorage.setItem('fms_credentials', credentials);
             sessionStorage.setItem('fms_email', data.username || email);
+            sessionStorage.setItem('fms_role', data.role || 'ADMIN');
+            if (data.displayName) {
+                sessionStorage.setItem('fms_displayName', data.displayName);
+            }
+            if (data.userId) {
+                sessionStorage.setItem('fms_userId', data.userId);
+            }
             if (data.roles) {
                 sessionStorage.setItem('fms_roles', JSON.stringify(data.roles));
             }
 
-            // Redirect to dashboard
-            window.location.href = '/dashboard.html';
+            // Role-based destination redirect
+            if (data.role === 'STUDENT') {
+                window.location.href = '/student-portal.html';
+            } else if (data.role === 'TEACHER') {
+                window.location.href = '/teacher-portal.html';
+            } else {
+                window.location.href = '/principal-dashboard.html';
+            }
 
         } catch (err) {
             errorBox.textContent = 'Could not reach server. Please check your connection.';

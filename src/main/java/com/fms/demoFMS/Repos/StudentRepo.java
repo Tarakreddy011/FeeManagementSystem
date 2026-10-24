@@ -4,20 +4,16 @@ import com.fms.demoFMS.Entity.StudentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
-
 
 @Repository
 public interface StudentRepo extends JpaRepository<StudentEntity, Integer> {
 
-    //Optional<StudentEntity> findByName(String studentname);
     Optional<StudentEntity> findByStudentname(String studentname);
+    Optional<StudentEntity> findByStudentnameIgnoreCase(String studentname);
     Optional<StudentEntity> findByEmail(String email);
+    Optional<StudentEntity> findByEmailIgnoreCase(String email);
 
-
-
-
-    /*@Query("SELECT s FROM StudentEntity s WHERE s.studentName = :name")
-    Optional<StudentEntity> findByName(@Param("name") String name);*/
-
+    List<StudentEntity> findByTeacher_Teacherid(Integer teacherid);
 }

@@ -13,7 +13,7 @@ public class AddFeeUpdateResponseDTO {
     private String studentname;
     private String fatherName;
     private String email;
-    private int feebalance;
+    private double feebalance;
     private String TeacherName;
     private double newfee;
 

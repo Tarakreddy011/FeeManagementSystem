@@ -136,7 +136,8 @@
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
-        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/principal-dashboard.html" style="color:#2563eb; font-weight:700;">Principal Center</a>
+        <a class="nav-link" href="/dashboard.html">System Analytics</a>
         <a class="nav-link" href="/students/students.html">Students</a>
         <a class="nav-link" href="/teachers/teachers.html">Teachers</a>
         <a class="nav-link active" href="/feepayment/feepayment.html">Fee Payment</a>
@@ -148,7 +149,10 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-inner">
-        <div class="badge">Fee Collection</div>
+        <div class="page-header-meta">
+            <div class="badge">Fee Collection</div>
+            <span class="page-header-greeting" id="pageGreeting"></span>
+        </div>
         <h1>Process <span>Fee Payment</span></h1>
         <p>Record an installment, compute updated fee balance, and generate an immediate verified transaction receipt.</p>
     </div>
@@ -283,6 +287,27 @@
 </footer>
 
 <script>
+    // Access guard: Redirect students to personal portal
+    const creds = sessionStorage.getItem('fms_credentials');
+    if (!creds) {
+        window.location.href = '/Login/Login.html';
+    }
+    const role = sessionStorage.getItem('fms_role');
+    const rolesStr = sessionStorage.getItem('fms_roles');
+    if (role === 'STUDENT' || (rolesStr && rolesStr.includes('ROLE_STUDENT') && !rolesStr.includes('ROLE_ADMIN') && !rolesStr.includes('ROLE_TEACHER'))) {
+
+    // Page header greeting
+    (function () {
+        const h = new Date().getHours();
+        const period = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        const name = sessionStorage.getItem('fms_email') || '';
+        const short = name.includes('@') ? name.split('@')[0] : name;
+        const el = document.getElementById('pageGreeting');
+        if (el && short) el.textContent = period + ', ' + short.charAt(0).toUpperCase() + short.slice(1);
+    })();
+        window.location.href = '/student-portal.html';
+    }
+
     function getHeaders() {
         const creds = sessionStorage.getItem('fms_credentials');
         const h = { 'Content-Type': 'application/json' };

@@ -1,7 +1,9 @@
 package com.fms.demoFMS.config;
 
+import com.fms.demoFMS.Entity.Principal;
 import com.fms.demoFMS.Entity.PrincipalEntity;
 import com.fms.demoFMS.Entity.StudentEntity;
+import com.fms.demoFMS.Repos.PrincipalRepo;
 import com.fms.demoFMS.Repos.StudentRepo;
 import com.fms.demoFMS.Repos.TeacherRepo;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    private final PrincipalRepo principalRepo;
     private final TeacherRepo teacherRepo;
     private final StudentRepo studentRepo;
 
@@ -27,15 +30,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Value("${spring.security.user.password:pwd}")
     private String defaultUserPassword;
 
-    public CustomUserDetailsService(TeacherRepo teacherRepo, StudentRepo studentRepo) {
+    public CustomUserDetailsService(PrincipalRepo principalRepo, TeacherRepo teacherRepo, StudentRepo studentRepo) {
+        this.principalRepo = principalRepo;
         this.teacherRepo = teacherRepo;
         this.studentRepo = studentRepo;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        if (username == null || username.isBlank()) {
+            throw new UsernameNotFoundException("Username cannot be empty");
+        }
+        String cleanUser = username.trim();
+
         // 1. Check default admin / system user configured in application.properties
-        if (username.equalsIgnoreCase(defaultUserName)) {
+        if (cleanUser.equalsIgnoreCase(defaultUserName)) {
             return new User(
                     defaultUserName,
                     defaultUserPassword,
@@ -43,22 +52,29 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // 2. Built-in fallback administrative accounts for convenience
-        if (username.equalsIgnoreCase("admin")) {
+        // 2. Built-in administrative accounts
+        if (cleanUser.equalsIgnoreCase("admin")) {
             return new User(
                     "admin",
                     "admin123",
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
             );
         }
-        if (username.equalsIgnoreCase("teacher")) {
+        if (cleanUser.equalsIgnoreCase("principal")) {
+            return new User(
+                    "principal",
+                    "principal123",
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
+            );
+        }
+        if (cleanUser.equalsIgnoreCase("teacher")) {
             return new User(
                     "teacher",
                     "teacher123",
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_TEACHER"))
             );
         }
-        if (username.equalsIgnoreCase("student")) {
+        if (cleanUser.equalsIgnoreCase("student")) {
             return new User(
                     "student",
                     "student123",
@@ -66,38 +82,45 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // 3. Check Teacher / Principal table by email or teachername
-        Optional<PrincipalEntity> teacherOpt = teacherRepo.findByEmail(username);
-        if (teacherOpt.isEmpty()) {
-            teacherOpt = teacherRepo.findByTeachername(username);
+        // 3. Check Principal / Admin table
+        Optional<Principal> principalOpt = principalRepo.findByEmailIgnoreCase(cleanUser)
+                .or(() -> principalRepo.findByUsernameIgnoreCase(cleanUser));
+        if (principalOpt.isPresent()) {
+            Principal principal = principalOpt.get();
+            String rawPwd = principal.getPassword() != null ? principal.getPassword() : "admin123";
+            String cleanPwd = rawPwd.replaceAll("[^0-9a-zA-Z]", "");
+            return new User(
+                    principal.getEmail() != null ? principal.getEmail() : principal.getUsername(),
+                    cleanPwd.isEmpty() ? rawPwd : cleanPwd,
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
+            );
         }
+
+        // 4. Check Teacher table
+        Optional<PrincipalEntity> teacherOpt = teacherRepo.findByEmailIgnoreCase(cleanUser)
+                .or(() -> teacherRepo.findByTeachernameIgnoreCase(cleanUser))
+                .or(() -> teacherRepo.findByEmail(cleanUser))
+                .or(() -> teacherRepo.findByTeachername(cleanUser));
         if (teacherOpt.isPresent()) {
             PrincipalEntity teacher = teacherOpt.get();
-            boolean isPrincipal = "true".equalsIgnoreCase(teacher.getIsprincipal())
-                    || "yes".equalsIgnoreCase(teacher.getIsprincipal())
-                    || "1".equals(teacher.getIsprincipal());
-
-            String role = isPrincipal ? "ROLE_ADMIN" : "ROLE_TEACHER";
             String rawPwd = teacher.getPassword() != null ? teacher.getPassword() : "";
-            // Strip any '-' or non-alphanumeric characters for clean comparison
             String cleanPwd = rawPwd.replaceAll("[^0-9a-zA-Z]", "");
 
             return new User(
                     teacher.getEmail() != null ? teacher.getEmail() : teacher.getTeachername(),
                     cleanPwd.isEmpty() ? rawPwd : cleanPwd,
-                    Collections.singletonList(new SimpleGrantedAuthority(role))
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_TEACHER"))
             );
         }
 
-        // 4. Check Student table by email or studentname
-        Optional<StudentEntity> studentOpt = studentRepo.findByEmail(username);
-        if (studentOpt.isEmpty()) {
-            studentOpt = studentRepo.findByStudentname(username);
-        }
+        // 5. Check Student table
+        Optional<StudentEntity> studentOpt = studentRepo.findByEmailIgnoreCase(cleanUser)
+                .or(() -> studentRepo.findByStudentnameIgnoreCase(cleanUser))
+                .or(() -> studentRepo.findByEmail(cleanUser))
+                .or(() -> studentRepo.findByStudentname(cleanUser));
         if (studentOpt.isPresent()) {
             StudentEntity student = studentOpt.get();
             String rawPwd = student.getPassword() != null ? student.getPassword() : "";
-            // Strip any '-' or non-alphanumeric characters for clean comparison
             String cleanPwd = rawPwd.replaceAll("[^0-9a-zA-Z]", "");
 
             return new User(

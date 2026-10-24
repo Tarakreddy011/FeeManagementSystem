@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal | PayMyFee</title>
+    <meta name="description" content="Personal student portal for PayMyFee - view your profile, check fee balance, inspect assigned faculty supervisor, and settle payments.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .welcome-bar {
+            background: #0f172a;
+            color: white;
+            padding: 12px 7%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .welcome-bar span { color: #60a5fa; font-weight: 600; }
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .portal-container {
+            max-width: 1140px;
+            margin: 40px auto 60px;
+            padding: 0 24px;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #f1f5f9;
+            font-size: 14px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #64748b; font-weight: 500; }
+        .info-value { color: #0f172a; font-weight: 600; text-align: right; }
+
+        /* Balance Highlight Card */
+        .balance-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .balance-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            font-weight: 600;
+        }
+
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 12px 0;
+            letter-spacing: -1px;
+        }
+
+        .balance-badge {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Payment Form */
+        .pay-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .pay-input-group {
+            position: relative;
+            margin: 16px 0 12px;
+        }
+
+        .pay-input-prefix {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .pay-input {
+            width: 100%;
+            padding: 14px 14px 14px 34px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .pay-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quick-btn:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #93c5fd;
+        }
+
+        .pay-submit-btn {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        .pay-submit-btn:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .pay-submit-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* History Table */
+        .history-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 14px;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-table td {
+            padding: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .history-table tr:last-child td { border-bottom: none; }
+
+        .receipt-tag {
+            font-family: monospace;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .alert.visible { display: block; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        @media (max-width: 800px) {
+            .portal-grid { grid-template-columns: 1fr; }
+            .balance-amount { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Welcome Bar -->
+<div class="welcome-bar">
+    <div>Student Portal: Signed in as <span id="welcomeStudentName">Loading...</span></div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a class="logo" href="/">
+        <span class="logo-icon">&#8377;</span>
+        <span>PayMyFee</span>
+    </a>
+    <div style="font-size: 14px; color: #64748b; font-weight: 600;">
+        Student Dashboard
+    </div>
+</nav>
+
+<div class="portal-container">
+
+    <!-- Alerts -->
+    <div id="paymentAlert" class="alert"></div>
+
+    <!-- Top Grid: Balance Card & Payment Form -->
+    <div class="portal-grid">
+        
+        <!-- Left: Balance Card & Assigned Faculty -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+            <div class="balance-card">
+                <div>
+                    <div class="balance-label">Outstanding Balance</div>
+                    <div class="balance-amount" id="balanceDisplay">&#8377;0.00</div>
+                </div>
+                <div>
+                    <span class="balance-badge" id="balanceStatusBadge">Loading status...</span>
+                </div>
+            </div>
+
+            <!-- Assigned Faculty Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Assigned Faculty Supervisor</span>
+                    <span style="font-size:12px; color:#64748b; font-weight:600;">Academic Mentor</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Faculty Name</span>
+                    <span class="info-value" id="teacherName">Not Assigned</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Faculty ID</span>
+                    <span class="info-value" id="teacherId">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value" id="teacherEmail">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Contact Number</span>
+                    <span class="info-value" id="teacherPhone">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Pay Fee Box -->
+        <div class="pay-box">
+            <div class="card-header">
+                <span class="card-title">Pay Tuition Fee</span>
+                <span style="font-size:12px; color:#2563eb; font-weight:600;">Direct Clearance</span>
+            </div>
+            <p style="font-size:14px; color:#64748b; line-height:1.5;">
+                Enter the amount you wish to pay toward your outstanding balance. Your account will be updated automatically upon submission.
+            </p>
+
+            <form id="paymentForm" onsubmit="handleFeePayment(event)">
+                <div class="pay-input-group">
+                    <span class="pay-input-prefix">&#8377;</span>
+                    <input 
+                        type="number" 
+                        class="pay-input" 
+                        id="payAmountInput" 
+                        placeholder="0.00" 
+                        step="0.01" 
+                        min="1" 
+                        required
+                    >
+                </div>
+
+                <div class="quick-amounts">
+                    <button type="button" class="quick-btn" onclick="setQuickAmount(1000)">+ &#8377;1,000</button>
+                    <button type="button" class="quick-btn" onclick="setQuickAmount(5000)">+ &#8377;5,000</button>
+                    <button type="button" class="quick-btn" onclick="setQuickAmount(10000)">+ &#8377;10,000</button>
+                    <button type="button" class="quick-btn" onclick="setFullAmount()">Pay Full Outstanding</button>
+                </div>
+
+                <button type="submit" class="pay-submit-btn" id="paySubmitBtn">
+                    Confirm &amp; Settle Fee
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Student Profile Details -->
+    <div class="card" style="margin-bottom:32px;">
+        <div class="card-header">
+            <span class="card-title">Student Profile</span>
+            <span style="font-size:12px; color:#64748b; font-weight:600;">Enrolled Student Details</span>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+            <div>
+                <div class="info-label" style="font-size:12px; margin-bottom:4px;">Full Name</div>
+                <div style="font-size:16px; font-weight:700;" id="profileName">--</div>
+            </div>
+            <div>
+                <div class="info-label" style="font-size:12px; margin-bottom:4px;">Student ID</div>
+                <div style="font-size:16px; font-weight:700;" id="profileId">--</div>
+            </div>
+            <div>
+                <div class="info-label" style="font-size:12px; margin-bottom:4px;">Email Address</div>
+                <div style="font-size:16px; font-weight:700;" id="profileEmail">--</div>
+            </div>
+            <div>
+                <div class="info-label" style="font-size:12px; margin-bottom:4px;">Parent / Father Name</div>
+                <div style="font-size:16px; font-weight:700;" id="profileFather">--</div>
+            </div>
+            <div>
+                <div class="info-label" style="font-size:12px; margin-bottom:4px;">Date of Birth</div>
+                <div style="font-size:16px; font-weight:700;" id="profileDob">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="history-card">
+        <div class="card-header">
+            <div>
+                <span class="card-title">My Payment History</span>
+                <p style="font-size:13px; color:#64748b; margin-top:2px;">Complete record of previous transactions associated with your account.</p>
+            </div>
+            <button class="quick-btn" onclick="loadPaymentHistory()">Refresh History</button>
+        </div>
+
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Receipt ID</th>
+                    <th>Amount Paid</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Staff In-Charge</th>
+                    <th>Verification</th>
+                </tr>
+            </thead>
+            <tbody id="paymentHistoryBody">
+                <tr>
+                    <td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">Loading payment history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <div class="logo">
+                <span class="logo-icon">&#8377;</span>
+                <span>PayMyFee</span>
+            </div>
+            <p>Student self-service billing and fee management.</p>
+        </div>
+        <div class="footer-right">
+            <p>PayMyFee Secure Academic Portal</p>
+            <p>All transactions encrypted and recorded.</p>
+        </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 PayMyFee. All rights reserved.</div>
+</footer>
+
+<script>
+    let currentFeeBalance = 0;
+
+    function getHeaders() {
+        const creds = sessionStorage.getItem('fms_credentials');
+        const h = { 'Content-Type': 'application/json' };
+        if (creds) h['Authorization'] = 'Basic ' + creds;
+        return h;
+    }
+
+    // Role Guard: Check Authentication
+    const creds = sessionStorage.getItem('fms_credentials');
+    if (!creds) {
+        window.location.href = '/Login/Login.html';
+    }
+
+    // Sign out
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        sessionStorage.clear();
+        window.location.href = '/Login/Login.html';
+    });
+
+    function showAlert(message, isError = false) {
+        const alertBox = document.getElementById('paymentAlert');
+        alertBox.textContent = message;
+        alertBox.className = 'alert ' + (isError ? 'alert-error' : 'alert-success') + ' visible';
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideAlert() {
+        const alertBox = document.getElementById('paymentAlert');
+        alertBox.className = 'alert';
+    }
+
+    // Quick amount helpers
+    function setQuickAmount(amt) {
+        document.getElementById('payAmountInput').value = amt;
+    }
+
+    function setFullAmount() {
+        document.getElementById('payAmountInput').value = currentFeeBalance > 0 ? currentFeeBalance : 0;
+    }
+
+    // Fetch Student Profile & Balance
+    async function loadStudentProfile() {
+        try {
+            const res = await fetch('/student/me', { headers: getHeaders() });
+            if (res.status === 401 || res.status === 403) {
+                sessionStorage.clear();
+                window.location.href = '/Login/Login.html';
+                return;
+            }
+            if (!res.ok) {
+                showAlert('Unable to load student profile. Please try logging in again.', true);
+                return;
+            }
+
+            const data = await res.json();
+
+            // Populate Welcome
+            const h = new Date().getHours();
+            const period = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+            const sName = data.studentname || data.email;
+            document.getElementById('welcomeStudentName').textContent = period + ', ' + sName;
+            document.getElementById('profileName').textContent = data.studentname || 'N/A';
+            document.getElementById('profileId').textContent = '#' + (data.studentid || 'N/A');
+            document.getElementById('profileEmail').textContent = data.email || 'N/A';
+            document.getElementById('profileFather').textContent = data.fathername || 'N/A';
+            document.getElementById('profileDob').textContent = data.birthdate || 'Not specified';
+
+            // Fee Balance
+            currentFeeBalance = Number(data.feebalance || 0);
+            document.getElementById('balanceDisplay').textContent = '\u20B9' + currentFeeBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            const badge = document.getElementById('balanceStatusBadge');
+            if (currentFeeBalance <= 0) {
+                badge.textContent = 'Account Paid in Full';
+                badge.style.background = 'rgba(34, 197, 94, 0.25)';
+                document.getElementById('paySubmitBtn').disabled = true;
+                document.getElementById('paySubmitBtn').textContent = 'Fee Paid in Full';
+            } else {
+                badge.textContent = 'Pending Payment';
+                badge.style.background = 'rgba(239, 68, 68, 0.25)';
+                document.getElementById('paySubmitBtn').disabled = false;
+                document.getElementById('paySubmitBtn').textContent = 'Confirm & Settle Fee';
+            }
+
+            // Faculty supervisor
+            if (data.teacherName) {
+                document.getElementById('teacherName').textContent = data.teacherName;
+                document.getElementById('teacherId').textContent = data.teacherId ? '#' + data.teacherId : '--';
+                document.getElementById('teacherEmail').textContent = data.teacherEmail || 'N/A';
+                document.getElementById('teacherPhone').textContent = data.teacherPhone ? data.teacherPhone : 'N/A';
+            } else {
+                document.getElementById('teacherName').textContent = 'No Faculty Assigned';
+                document.getElementById('teacherId').textContent = '--';
+                document.getElementById('teacherEmail').textContent = '--';
+                document.getElementById('teacherPhone').textContent = '--';
+            }
+
+        } catch (err) {
+            showAlert('Network error while loading student profile.', true);
+        }
+    }
+
+    // Fetch Payment History
+    async function loadPaymentHistory() {
+        const tbody = document.getElementById('paymentHistoryBody');
+        try {
+            const res = await fetch('/student/me/payments', { headers: getHeaders() });
+            if (!res.ok) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">Could not retrieve payment history.</td></tr>';
+                return;
+            }
+            const list = await res.json();
+            if (list && list.length > 0) {
+                tbody.innerHTML = list.map(item => `
+                    <tr>
+                        <td><span class="receipt-tag">#${item.paymentId}</span></td>
+                        <td style="color:#2563eb; font-weight:700;">&#8377;${Number(item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td>${item.date}</td>
+                        <td>${item.time ? item.time.substring(0, 5) : '--'}</td>
+                        <td>${item.teacherName || 'Direct Payment'}</td>
+                        <td><span style="color:#16a34a; font-weight:600; font-size:12px; background:#dcfce7; padding:2px 8px; border-radius:12px;">Verified</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">No fee payments made yet.</td></tr>';
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">Error loading payments.</td></tr>';
+        }
+    }
+
+    // Handle Fee Payment Submission
+    async function handleFeePayment(e) {
+        e.preventDefault();
+        hideAlert();
+
+        const input = document.getElementById('payAmountInput');
+        const amount = parseFloat(input.value);
+
+        if (isNaN(amount) || amount <= 0) {
+            showAlert('Please specify a valid payment amount greater than zero.', true);
+            return;
+        }
+
+        if (amount > currentFeeBalance) {
+            showAlert(`Payment amount (\u20B9${amount}) cannot exceed current outstanding balance (\u20B9${currentFeeBalance}).`, true);
+            return;
+        }
+
+        const btn = document.getElementById('paySubmitBtn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Processing Transaction...';
+
+        try {
+            const res = await fetch('/student/me/pay', {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ amount: amount })
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+                showAlert(`Payment of \u20B9${amount.toLocaleString('en-IN')} confirmed successfully. Receipt #${data.feepaymentId}. New Balance: \u20B9${Number(data.newfeebalanceafterpayment).toLocaleString('en-IN')}`);
+                input.value = '';
+                // Refresh data
+                await loadStudentProfile();
+                await loadPaymentHistory();
+            } else {
+                showAlert(data.error || 'Payment failed. Please verify the amount and try again.', true);
+            }
+        } catch (err) {
+            showAlert('Could not reach the payment server. Please verify your connection.', true);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
+    // Initialize Page
+    loadStudentProfile();
+    loadPaymentHistory();
+</script>
+
+</body>
+</html>

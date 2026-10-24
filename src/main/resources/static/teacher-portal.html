@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal | PayMyFee</title>
+    <meta name="description" content="Faculty portal for PayMyFee - manage assigned students, monitor fee status, allocate fee balances, and inspect institutional rosters.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .welcome-bar {
+            background: #064e3b;
+            color: white;
+            padding: 12px 7%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .welcome-bar span { color: #6ee7b7; font-weight: 600; }
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .portal-container {
+            max-width: 1200px;
+            margin: 40px auto 60px;
+            padding: 0 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 8px 0;
+            color: #0f172a;
+        }
+
+        .stat-sub {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .section-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 36px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-btn.active {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .portal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .portal-table th {
+            text-align: left;
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .portal-table td {
+            padding: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .portal-table tr:hover td {
+            background: #fafafa;
+        }
+
+        .badge-assigned {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .btn-action {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-action:hover {
+            background: #047857;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* Modal for fee update */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.visible { display: flex; }
+
+        .modal-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-group input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .alert.visible { display: block; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .search-input {
+            padding: 8px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 260px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .search-input:focus { border-color: #059669; }
+
+        @media (max-width: 800px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Welcome Bar -->
+<div class="welcome-bar">
+    <div>Faculty Portal: Signed in as <span id="facultyWelcomeName">Loading...</span></div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a class="logo" href="/">
+        <span class="logo-icon" style="background:#059669;">&#8377;</span>
+        <span>PayMyFee</span>
+    </a>
+    <div style="font-size: 14px; color: #64748b; font-weight: 600;">
+        Faculty Supervision Dashboard
+    </div>
+</nav>
+
+<div class="portal-container">
+
+    <!-- Global Alert -->
+    <div id="portalAlert" class="alert"></div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Assigned Students</div>
+            <div class="stat-value" id="statMyStudents">0</div>
+            <div class="stat-sub">Under your direct mentorship</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Outstanding Fees in Cohort</div>
+            <div class="stat-value" id="statCohortFees">&#8377;0</div>
+            <div class="stat-sub">Pending collection for assigned group</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Institution Students</div>
+            <div class="stat-value" id="statAllStudents">0</div>
+            <div class="stat-sub">Active institution enrollment</div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" id="tabMyStudentsBtn" onclick="switchTab('my-students')">My Assigned Students</button>
+        <button class="tab-btn" id="tabAllStudentsBtn" onclick="switchTab('all-students')">All Students Roster</button>
+    </div>
+
+    <!-- Section: My Assigned Students -->
+    <div id="viewMyStudents" class="section-box">
+        <div class="section-header">
+            <div>
+                <div class="section-title">My Assigned Cohort</div>
+                <div class="section-subtitle">Students directly assigned to you for academic mentorship and fee administration.</div>
+            </div>
+            <button class="btn-secondary" onclick="loadMyStudents()">Refresh Cohort</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Father Name</th>
+                        <th>Email Address</th>
+                        <th>Fee Balance</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="myStudentsTbody">
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#94a3b8; padding:24px;">Loading assigned cohort...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section: All Institution Students -->
+    <div id="viewAllStudents" class="section-box" style="display:none;">
+        <div class="section-header">
+            <div>
+                <div class="section-title">Institution Student Directory</div>
+                <div class="section-subtitle">Full student roster across all departments.</div>
+            </div>
+            <input type="text" class="search-input" id="rosterSearch" placeholder="Filter by name or ID..." oninput="filterAllStudents()">
+        </div>
+
+        <div class="table-responsive">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Parent Name</th>
+                        <th>Fee Balance</th>
+                        <th>Assigned Faculty</th>
+                        <th>Quick Update</th>
+                    </tr>
+                </thead>
+                <tbody id="allStudentsTbody">
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#94a3b8; padding:24px;">Loading directory...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal: Adjust / Assign Fee -->
+<div class="modal-overlay" id="feeModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <span class="modal-title">Adjust Student Fee</span>
+            <button class="modal-close" onclick="closeFeeModal()">&times;</button>
+        </div>
+
+        <div id="modalAlert" class="alert"></div>
+
+        <form id="feeUpdateForm" onsubmit="submitFeeUpdate(event)">
+            <input type="hidden" id="modalStudentId">
+
+            <div class="form-group">
+                <label>Student Information</label>
+                <input type="text" id="modalStudentInfo" readonly style="background:#f8fafc; color:#475569;">
+            </div>
+
+            <div class="form-group">
+                <label for="modalNewFee">New Fee Balance (&#8377;)</label>
+                <input type="number" id="modalNewFee" placeholder="Enter updated fee balance" step="0.01" min="0" required>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+                <button type="button" class="btn-secondary" onclick="closeFeeModal()">Cancel</button>
+                <button type="submit" class="btn-action" id="modalSaveBtn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <div class="logo">
+                <span class="logo-icon" style="background:#059669;">&#8377;</span>
+                <span>PayMyFee</span>
+            </div>
+            <p>Faculty cohort supervision and fee tracking system.</p>
+        </div>
+        <div class="footer-right">
+            <p>PayMyFee Faculty Portal</p>
+            <p>Verified institutional access.</p>
+        </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 PayMyFee. All rights reserved.</div>
+</footer>
+
+<script>
+    let myStudentsList = [];
+    let allStudentsList = [];
+    let currentTeacher = null;
+
+    function getHeaders() {
+        const creds = sessionStorage.getItem('fms_credentials');
+        const h = { 'Content-Type': 'application/json' };
+        if (creds) h['Authorization'] = 'Basic ' + creds;
+        return h;
+    }
+
+    // Role Guard: Check Authentication
+    const creds = sessionStorage.getItem('fms_credentials');
+    if (!creds) {
+        window.location.href = '/Login/Login.html';
+    }
+
+    // Sign out
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        sessionStorage.clear();
+        window.location.href = '/Login/Login.html';
+    });
+
+    function showAlert(msg, isError = false) {
+        const el = document.getElementById('portalAlert');
+        el.textContent = msg;
+        el.className = 'alert ' + (isError ? 'alert-error' : 'alert-success') + ' visible';
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function switchTab(tab) {
+        document.getElementById('tabMyStudentsBtn').classList.toggle('active', tab === 'my-students');
+        document.getElementById('tabAllStudentsBtn').classList.toggle('active', tab === 'all-students');
+        document.getElementById('viewMyStudents').style.display = tab === 'my-students' ? 'block' : 'none';
+        document.getElementById('viewAllStudents').style.display = tab === 'all-students' ? 'block' : 'none';
+    }
+
+    // Load Teacher Profile
+    async function loadTeacherProfile() {
+        try {
+            const res = await fetch('/teachers/me', { headers: getHeaders() });
+            if (res.status === 401 || res.status === 403) {
+                sessionStorage.clear();
+                window.location.href = '/Login/Login.html';
+                return;
+            }
+            if (res.ok) {
+                currentTeacher = await res.json();
+                const teacherName = currentTeacher.teachername || currentTeacher.email || 'Faculty';
+                const h = new Date().getHours();
+                const period = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+                document.getElementById('facultyWelcomeName').textContent = period + ', ' + teacherName;
+            }
+        } catch (e) {}
+    }
+
+    // Load Assigned Students
+    async function loadMyStudents() {
+        const tbody = document.getElementById('myStudentsTbody');
+        try {
+            const res = await fetch('/teachers/my-students', { headers: getHeaders() });
+            if (res.ok) {
+                myStudentsList = await res.json();
+                document.getElementById('statMyStudents').textContent = myStudentsList.length;
+
+                let cohortFees = 0;
+                myStudentsList.forEach(s => cohortFees += (Number(s.feebalance) || 0));
+                document.getElementById('statCohortFees').textContent = '\u20B9' + cohortFees.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+                if (myStudentsList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:24px;">No students currently assigned to your cohort.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = myStudentsList.map(s => {
+                    const fee = Number(s.feebalance || 0);
+                    const feeStatus = fee <= 0 
+                        ? '<span style="color:#059669; font-weight:600;">Paid in Full</span>'
+                        : `<span style="color:#dc2626; font-weight:600;">\u20B9${fee.toLocaleString('en-IN', { minimumFractionDigits: 2 })} Due</span>`;
+
+                    return `
+                        <tr>
+                            <td><strong>#${s.studentid}</strong></td>
+                            <td style="font-weight:600;">${s.studentname}</td>
+                            <td>${s.fathername || 'N/A'}</td>
+                            <td>${s.email || 'N/A'}</td>
+                            <td style="font-weight:700;">&#8377;${fee.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                            <td>${feeStatus}</td>
+                            <td>
+                                <button class="btn-action" onclick="openFeeModal(${s.studentid}, '${s.studentname}', ${fee})">
+                                    Adjust Fee
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Could not load assigned students.</td></tr>';
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Error connecting to server.</td></tr>';
+        }
+    }
+
+    // Load All Students
+    async function loadAllStudents() {
+        const tbody = document.getElementById('allStudentsTbody');
+        try {
+            const res = await fetch('/student/all', { headers: getHeaders() });
+            if (res.ok) {
+                allStudentsList = await res.json();
+                document.getElementById('statAllStudents').textContent = allStudentsList.length;
+                renderAllStudents(allStudentsList);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Could not load institution roster.</td></tr>';
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Error connecting to server.</td></tr>';
+        }
+    }
+
+    function renderAllStudents(list) {
+        const tbody = document.getElementById('allStudentsTbody');
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:24px;">No students match criteria.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map(s => {
+            const isAssignedToMe = currentTeacher && s.teacherId === currentTeacher.teacherid;
+            const facultyTag = s.teacherName 
+                ? (isAssignedToMe ? `<span class="badge-assigned">Your Cohort</span>` : s.teacherName)
+                : '<span style="color:#94a3b8;">Unassigned</span>';
+
+            const fee = Number(s.feebalance || 0);
+
+            return `
+                <tr>
+                    <td><strong>#${s.studentid}</strong></td>
+                    <td style="font-weight:600;">${s.studentname}</td>
+                    <td>${s.email || 'N/A'}</td>
+                    <td>${s.fathername || 'N/A'}</td>
+                    <td style="font-weight:700;">&#8377;${fee.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td>${facultyTag}</td>
+                    <td>
+                        <button class="btn-action" onclick="openFeeModal(${s.studentid}, '${s.studentname}', ${fee})">
+                            Set Fee
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterAllStudents() {
+        const q = document.getElementById('rosterSearch').value.toLowerCase().trim();
+        if (!q) {
+            renderAllStudents(allStudentsList);
+            return;
+        }
+        const filtered = allStudentsList.filter(s => 
+            (s.studentname && s.studentname.toLowerCase().includes(q)) ||
+            (s.studentid && String(s.studentid).includes(q)) ||
+            (s.email && s.email.toLowerCase().includes(q))
+        );
+        renderAllStudents(filtered);
+    }
+
+    // Modal Operations
+    function openFeeModal(studentId, name, currentFee) {
+        document.getElementById('modalStudentId').value = studentId;
+        document.getElementById('modalStudentInfo').value = `#${studentId} - ${name} (Current: \u20B9${currentFee.toLocaleString('en-IN')})`;
+        document.getElementById('modalNewFee').value = currentFee;
+        document.getElementById('modalAlert').className = 'alert';
+        document.getElementById('feeModal').classList.add('visible');
+    }
+
+    function closeFeeModal() {
+        document.getElementById('feeModal').classList.remove('visible');
+    }
+
+    async function submitFeeUpdate(e) {
+        e.preventDefault();
+        const studentId = document.getElementById('modalStudentId').value;
+        const newFee = parseFloat(document.getElementById('modalNewFee').value);
+        const modalAlert = document.getElementById('modalAlert');
+
+        if (isNaN(newFee) || newFee < 0) {
+            modalAlert.textContent = 'Please enter a valid non-negative fee amount.';
+            modalAlert.className = 'alert alert-error visible';
+            return;
+        }
+
+        const btn = document.getElementById('modalSaveBtn');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+
+        try {
+            const bodyPayload = { feebalance: newFee };
+            if (currentTeacher && currentTeacher.teacherid) {
+                bodyPayload.teacherid = currentTeacher.teacherid;
+            }
+            const res = await fetch(`/teacherupdate/student/${studentId}/fee`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(bodyPayload)
+            });
+
+            if (res.ok) {
+                closeFeeModal();
+                showAlert(`Fee balance for student #${studentId} successfully updated to \u20B9${newFee.toLocaleString('en-IN')}.`);
+                // Refresh data
+                await loadMyStudents();
+                await loadAllStudents();
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                modalAlert.textContent = errData.message || 'Failed to update fee.';
+                modalAlert.className = 'alert alert-error visible';
+            }
+        } catch (err) {
+            modalAlert.textContent = 'Server connection error.';
+            modalAlert.className = 'alert alert-error visible';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
+    }
+
+    // Initialize Page
+    loadTeacherProfile().then(() => {
+        loadMyStudents();
+        loadAllStudents();
+    });
+</script>
+
+</body>
+</html>

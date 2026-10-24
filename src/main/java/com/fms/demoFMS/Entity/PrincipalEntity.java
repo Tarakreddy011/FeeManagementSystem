@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Table(name = "teacher")
 public class PrincipalEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer teacherid;
@@ -26,7 +25,4 @@ public class PrincipalEntity {
 
     private LocalDate birthdate;
     private String password;
-
-    private String isprincipal;
-
 }

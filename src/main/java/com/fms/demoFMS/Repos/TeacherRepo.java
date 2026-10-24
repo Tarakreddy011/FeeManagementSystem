@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
 @Repository
 public interface TeacherRepo extends JpaRepository<PrincipalEntity, Integer> {
     Optional<PrincipalEntity> findByTeachername(String teachername);
+    Optional<PrincipalEntity> findByTeachernameIgnoreCase(String teachername);
     Optional<PrincipalEntity> findByEmail(String email);
+    Optional<PrincipalEntity> findByEmailIgnoreCase(String email);
 }
-

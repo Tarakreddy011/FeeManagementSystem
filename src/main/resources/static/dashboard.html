@@ -178,7 +178,8 @@
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
-        <a class="nav-link active" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/principal-dashboard.html" style="color:#2563eb; font-weight:700;">Principal Control Center</a>
+        <a class="nav-link active" href="/dashboard.html">System Analytics</a>
         <a class="nav-link" href="/students/students.html">Students</a>
         <a class="nav-link" href="/teachers/teachers.html">Teachers</a>
         <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
@@ -190,8 +191,11 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-inner">
-        <div class="badge">Administrative Hub</div>
-        <h1>Overview and <span>Live Controls</span></h1>
+        <div class="page-header-meta">
+            <div class="badge">Administrative Hub</div>
+            <span class="page-header-greeting" id="pageGreeting"></span>
+        </div>
+        <h1 id="pageHeaderTitle">Overview and <span>Live Controls</span></h1>
         <p>Monitor real-time student registrations, faculty headcount, fee collection records, and system health from one place.</p>
     </div>
 </div>
@@ -373,6 +377,21 @@
 </footer>
 
 <script>
+    // Role-based Access Guard
+    const creds = sessionStorage.getItem('fms_credentials');
+    if (!creds) {
+        window.location.href = '/Login/Login.html';
+    }
+
+    const userRole = sessionStorage.getItem('fms_role');
+    const rolesStr = sessionStorage.getItem('fms_roles');
+
+    if (userRole === 'STUDENT' || (rolesStr && rolesStr.includes('ROLE_STUDENT') && !rolesStr.includes('ROLE_ADMIN') && !rolesStr.includes('ROLE_TEACHER'))) {
+        window.location.href = '/student-portal.html';
+    } else if (userRole === 'TEACHER' || (rolesStr && rolesStr.includes('ROLE_TEACHER') && !rolesStr.includes('ROLE_ADMIN'))) {
+        window.location.href = '/teacher-portal.html';
+    }
+
     function getHeaders() {
         const creds = sessionStorage.getItem('fms_credentials');
         const h = { 'Content-Type': 'application/json' };
@@ -382,7 +401,6 @@
 
     // Display user session information
     const email = sessionStorage.getItem('fms_email');
-    const rolesStr = sessionStorage.getItem('fms_roles');
     if (email) {
         let display = email;
         if (rolesStr) {
@@ -394,6 +412,17 @@
         }
         document.getElementById('userDisplay').textContent = display;
     }
+
+    // Dynamic page-header greeting
+    (function () {
+        const hour = new Date().getHours();
+        const period = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        const name = sessionStorage.getItem('fms_email') || 'Administrator';
+        const shortName = name.includes('@') ? name.split('@')[0] : name;
+        const formatted = shortName.charAt(0).toUpperCase() + shortName.slice(1);
+        document.getElementById('pageGreeting').textContent = period + ', ' + formatted;
+        document.getElementById('pageHeaderTitle').innerHTML = 'Overview and <span>Live Controls</span>';
+    })();
 
     // Sign out handler
     document.getElementById('logoutBtn').addEventListener('click', () => {

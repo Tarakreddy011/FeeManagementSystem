@@ -3,6 +3,7 @@ package com.fms.demoFMS.config;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Static HTML, CSS, JS, and UI pages are publicly accessible
+                        // 1. Static Web Resources & UI Pages
                         .requestMatchers(
                                 "/",
                                 "/index.html",
@@ -32,25 +33,74 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/Login/**",
                                 "/dashboard.html",
-                                "/students/**",
-                                "/teachers/**",
+                                "/principal-dashboard.html",
+                                "/student-portal.html",
+                                "/teacher-portal.html",
+                                "/students/*.html",
+                                "/students/*.css",
+                                "/students/*.js",
+                                "/teachers/*.html",
+                                "/teachers/*.css",
+                                "/teachers/*.js",
                                 "/feepayment/**",
                                 "/feeupdate/**"
                         ).permitAll()
 
-                        // 2. Auth and Dashboard endpoints require valid credentials
-                        .requestMatchers("/api/auth/**", "/api/dashboard/**").authenticated()
+                        // 2. Auth Endpoints
+                        .requestMatchers("/api/auth/**").authenticated()
 
-                        // 3. API endpoints are secured with Spring Security
-                        .requestMatchers("/student/**").authenticated()
-                        .requestMatchers("/teachers/**").authenticated()
-                        .requestMatchers("/paymyfee/**").authenticated()
-                        .requestMatchers("/teacherupdate/**").authenticated()
+                        // 3. Student Self-Service (Student & Admin)
+                        .requestMatchers(
+                                "/student/me/**",
+                                "/api/student/me/**",
+                                "/paymyfee/student/pay"
+                        ).hasAnyRole("STUDENT", "ADMIN")
 
-                        // 4. Any other request requires authentication
+                        // 4. Teacher Self-Service & Assigned Views
+                        .requestMatchers(
+                                "/teachers/my-students",
+                                "/api/teacher/my-students",
+                                "/teachers/me",
+                                "/api/teacher/me"
+                        ).hasAnyRole("TEACHER", "ADMIN")
+
+                        // 5. Teachers can view all students and update student fees
+                        .requestMatchers(HttpMethod.GET, "/student/all", "/api/student/all").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/teacherupdate/**").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/paymyfee/**").hasAnyRole("TEACHER", "ADMIN")
+
+                        // 6. Admin-Only Management Endpoints
+                        .requestMatchers(
+                                "/student/addstudent",
+                                "/student/updatestudent/**",
+                                "/student/deletestudent/**",
+                                "/teachers/addteacher",
+                                "/teachers/update/**",
+                                "/teachers/deleteteacher/**",
+                                "/api/dashboard/**",
+                                "/api/principal/**"
+                        ).hasRole("ADMIN")
+
+                        // 7. General Student/Teacher management endpoints (Teacher & Admin)
+                        .requestMatchers("/student/**", "/api/student/**").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/teachers/**", "/api/teacher/**").hasAnyRole("TEACHER", "ADMIN")
+
+                        // 8. Any other request requires authentication
                         .anyRequest().authenticated()
                 )
-                // Custom entry point suppresses WWW-Authenticate header to prevent browser's native popup
+                // Exception handling without browser auth dialogs
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Invalid credentials or session expired.\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"status\":403,\"error\":\"Forbidden\",\"message\":\"Access denied: insufficient permissions for this resource.\"}");
+                        })
+                )
                 .httpBasic(basic -> basic.authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
@@ -98,3 +148,4 @@ public class SecurityConfig {
         return source;
     }
 }
+

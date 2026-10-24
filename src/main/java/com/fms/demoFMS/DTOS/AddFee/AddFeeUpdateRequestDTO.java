@@ -12,7 +12,7 @@ public class AddFeeUpdateRequestDTO {
     private Integer studentid;
 
     @JsonAlias({"feebalance", "feeBalance", "amount", "newfee", "newFee"})
-    private int feebalance;
+    private double feebalance;
 
     @JsonAlias({"studentname", "studentName", "name"})
     private String studentname;

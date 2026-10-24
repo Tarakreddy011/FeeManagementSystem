@@ -651,10 +651,23 @@ footer {
 ========================= */
 
 .page-header {
-    padding: 50px 7% 40px;
-    background: radial-gradient(circle at 10% 30%, #dbeafe 0%, transparent 40%),
-                radial-gradient(circle at 90% 70%, #e0e7ff 0%, transparent 35%);
+    padding: 48px 7% 38px;
+    background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.page-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.page-header-greeting {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: 0.01em;
 }
 
 .page-header-inner {

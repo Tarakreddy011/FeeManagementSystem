@@ -14,4 +14,6 @@ public interface FeeHistoryRepo extends JpaRepository<FeeHistory, Integer> {
     Double getTotalFeesCollected();
 
     List<FeeHistory> findTop5ByOrderByFeepaymentIdDesc();
+
+    List<FeeHistory> findByStudent_StudentidOrderByFeepaymentIdDesc(Integer studentid);
 }

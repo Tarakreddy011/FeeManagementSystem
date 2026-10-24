@@ -45,7 +45,8 @@
         <span>PayMyFee</span>
     </a>
     <div class="nav-links">
-        <a class="nav-link" href="/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="/principal-dashboard.html" style="color:#2563eb; font-weight:700;">Principal Center</a>
+        <a class="nav-link" href="/dashboard.html">System Analytics</a>
         <a class="nav-link" href="/students/students.html">Students</a>
         <a class="nav-link active" href="/teachers/teachers.html">Teachers</a>
         <a class="nav-link" href="/feepayment/feepayment.html">Fee Payment</a>
@@ -57,7 +58,10 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-inner">
-        <div class="badge">Faculty Directory</div>
+        <div class="page-header-meta">
+            <div class="badge">Faculty Directory</div>
+            <span class="page-header-greeting" id="pageGreeting"></span>
+        </div>
         <h1>Manage <span>Teachers</span></h1>
         <p>Register faculty members, inspect staff records, search by identifier or name, and update permissions.</p>
     </div>
@@ -130,13 +134,6 @@
                             <label for="add-dob">Date of Birth</label>
                             <input type="date" id="add-dob" required>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="add-principal">System Role</label>
-                        <select id="add-principal">
-                            <option value="false">Teacher (Standard Faculty)</option>
-                            <option value="true">Principal (Administrative Access)</option>
-                        </select>
                     </div>
                     <div class="alert" id="addAlert"></div>
                     <button type="submit" class="submit-btn" id="addBtn">Register Teacher</button>
@@ -252,6 +249,27 @@
 </footer>
 
 <script>
+    // Access guard: Redirect students to personal portal
+    const creds = sessionStorage.getItem('fms_credentials');
+    if (!creds) {
+        window.location.href = '/Login/Login.html';
+    }
+    const role = sessionStorage.getItem('fms_role');
+    const rolesStr = sessionStorage.getItem('fms_roles');
+    if (role === 'STUDENT' || (rolesStr && rolesStr.includes('ROLE_STUDENT') && !rolesStr.includes('ROLE_ADMIN') && !rolesStr.includes('ROLE_TEACHER'))) {
+
+    // Page header greeting
+    (function () {
+        const h = new Date().getHours();
+        const period = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        const name = sessionStorage.getItem('fms_email') || '';
+        const short = name.includes('@') ? name.split('@')[0] : name;
+        const el = document.getElementById('pageGreeting');
+        if (el && short) el.textContent = period + ', ' + short.charAt(0).toUpperCase() + short.slice(1);
+    })();
+        window.location.href = '/student-portal.html';
+    }
+
     function getHeaders(extra) {
         const creds = sessionStorage.getItem('fms_credentials');
         const h = { 'Content-Type': 'application/json' };
@@ -349,8 +367,7 @@
             teachername: document.getElementById('add-name').value.trim(),
             email:       document.getElementById('add-email').value.trim(),
             phone:       Number(document.getElementById('add-phone').value),
-            birthdate:   document.getElementById('add-dob').value,
-            isprincipal: document.getElementById('add-principal').value === 'true'
+            birthdate:   document.getElementById('add-dob').value
         };
 
         try {
