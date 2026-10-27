@@ -1,3 +1,20 @@
+# Fix Update   Important
+
+* as we added all our final modules we now need to improve the issues that are there in app 
+* one is app crash as soon we open java.lang.RuntimeException: Driver com.mysql.cj.jdbc.Driver claims to not accept jdbcUrl, ${DB_URL}
+* 
+
+
+
+
+
+
+
+
+
+
+
+
 # Improve architecture
 
 * Use a layered design: controller → service → repository → database
@@ -42,3 +59,9 @@
 * Database schema docs
 * API documentation
 * Deployment steps
+
+
+
+
+
+
