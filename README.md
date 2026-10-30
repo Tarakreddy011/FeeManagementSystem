@@ -104,18 +104,12 @@ Newly enrolled students and faculty have default passwords generated from their 
 ## Installation & Setup Guide
 
 ### 1. Database Preparation
-Start your local MySQL service and execute:
+Start your local MySQL service. The `paymyfee` schema shown in MySQL Workbench already exists, so keep using it. Only run this statement if you later need to recreate a missing schema:
 ```sql
 CREATE DATABASE paymyfee;
 ```
-
-Check `src/main/resources/application.properties` and verify connection parameters:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/paymyfee?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-spring.datasource.username=root
-spring.datasource.password=your_password
-spring.jpa.hibernate.ddl-auto=update
-```
+The backend defaults to the local MySQL Workbench connection at `127.0.0.1:3306`, username `root`, and schema `paymyfee`.
+Optional `DB_URL` and `DB_USERNAME` variables override the local defaults. The password is read from `DB_PASSWORD`; it is not stored in the repository.
 
 ### 2. Build the Application
 In the `FeeManagementSystem` folder, build the project using the Maven wrapper:
@@ -124,13 +118,33 @@ In the `FeeManagementSystem` folder, build the project using the Maven wrapper:
 ```
 
 ### 3. Run the Server
-Launch the Spring Boot application:
+From the backend folder, enter the MySQL password in the secure terminal prompt and start Spring Boot. The password is held only in the current process environment while the server runs:
 ```powershell
-.\mvnw.cmd spring-boot:run
+$secure = Read-Host 'MySQL root password' -AsSecureString
+$pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+try {
+   $env:DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+   .\mvnw.cmd spring-boot:run
+} finally {
+   [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
+   Remove-Item Env:DB_PASSWORD -ErrorAction SilentlyContinue
+}
 ```
 The server will initialize on port `8080`.
 
-### 4. Default Logins
+### 4. Run the Separate React Frontend
+The React client is maintained in the sibling `FeeManagementFrontend` project and can run independently from the backend. Start the backend as above, then in a second terminal:
+```powershell
+Set-Location ..\FeeManagementFrontend
+Copy-Item .env.example .env
+npm install
+npm run dev
+```
+Open `http://localhost:5173`. The frontend calls the backend at `http://localhost:8080` by default. Change `VITE_API_BASE_URL` in the frontend `.env` if needed. The backend allows the local frontend origin by default; set `FRONTEND_ORIGIN` in the backend environment to override it.
+
+The legacy HTML pages under `src/main/resources/static` are retained temporarily as a fallback during React migration.
+
+### 5. Default Logins
 | Role | Identifier | Password | Destination Portal |
 | :--- | :--- | :--- | :--- |
 | **Principal (Administrator)** | `principal` | `principal123` | `principal-dashboard.html` |
