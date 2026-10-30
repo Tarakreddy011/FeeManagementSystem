@@ -21,7 +21,7 @@ public class PrincipalEntity {
 
     @Email
     private String email;
-    private int phone;
+    private String phone;
 
     private LocalDate birthdate;
     private String password;

@@ -12,6 +12,6 @@ public class AddTeacherdto {
     private Integer id;
     private String teachername;
     private String email;
-    private int phone;
+    private String phone;
     private LocalDate birthdate;
 }

@@ -11,7 +11,7 @@ public class ResponseTeacherdto {
     private Integer teacherid;
     private String teachername;
     private String email;
-    private int phone;
+    private String phone;
 
 
 }

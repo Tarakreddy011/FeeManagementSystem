@@ -8,5 +8,5 @@ import lombok.Setter;
 public class TeacherUpdate {
 
     private String teachername;
-    private int phone;
+    private String phone;
 }

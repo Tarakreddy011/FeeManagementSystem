@@ -30,8 +30,8 @@ public class FeeUpdateService {
         if (request.getStudentid() == null || request.getStudentid() <= 0) {
             throw new IllegalArgumentException("Student ID is required and must be valid");
         }
-        if (request.getFeebalance() < 0) {
-            throw new IllegalArgumentException("Fee balance cannot be negative");
+        if (!Double.isFinite(request.getFeebalance()) || request.getFeebalance() < 0) {
+            throw new IllegalArgumentException("Fee balance must be finite and cannot be negative");
         }
 
         StudentEntity student = studentRepo.findById(request.getStudentid())
@@ -68,4 +68,3 @@ public class FeeUpdateService {
         return response;
     }
 }
-

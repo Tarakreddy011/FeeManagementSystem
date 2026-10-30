@@ -30,7 +30,8 @@ Security and privacy boundaries are enforced at both the Spring Security filter 
 | Adjust / Assign Student Fee Balance | No (Blocked 403) | Yes (`/teacherupdate/**`) | Yes (`/api/principal/student/{id}/fee`) |
 | View Institution-wide Student Roster | No (Blocked 403) | Yes (`/student/all`) | Yes |
 | Manage Student-Teacher Relationships | No (Blocked 403) | No (Blocked 403) | Yes (`/api/principal/assign-mentor`) |
-| Onboard New Students or Teachers | No (Blocked 403) | No (Blocked 403) | Yes |
+| Onboard New Students | No (Blocked 403) | Yes (assigned to the authenticated teacher) | Yes (mentor optional) |
+| Onboard New Teachers | No (Blocked 403) | No (Blocked 403) | Yes |
 | Delete Student or Teacher Records | No (Blocked 403) | No (Blocked 403) | Yes |
 | Access Principal Command Center | No (Blocked 403) | No (Blocked 403) | Yes (React frontend) |
 
@@ -57,11 +58,11 @@ Previous versions suffered from type mismatches (`int` in DTOs vs `double` in da
 
 **The Solution:**
 - **Standardized Precision:** All monetary amounts (`feebalance`, `amount`, and `newfeebalanceafterpayment`) now consistently use `double` across all entities, repositories, and DTOs.
-- **Strict Two-Decimal Rounding:** All balance adjustments enforce financial rounding using `Math.round(val * 100.0) / 100.0`.
+- **Strict Two-Decimal Rounding:** Payment amounts and resulting balances are rounded to cents using `Math.round(val * 100.0) / 100.0`; amounts that round to zero are rejected.
 - **Atomic Database Commits:** `@Transactional` annotations on `FeeRecipt` and `FeeUpdateService` ensure that student account balances and `FeeHistory` payment slips commit or roll back together atomically.
 - **Null-Safe Fee Adjustments:** In `FeeUpdateService`, when adjusting fees without specifying a new teacher ID, the student's existing teacher is safely preserved rather than throwing `The given id must not be null`.
 - **Overpayment Safeguards:** The payment engine prevents transactions where `paymentAmount > currentBalance`, returning a descriptive validation error instead of negative balances.
-- **Automatic Faculty Linking:** When a student settles a fee, the system automatically resolves and credits their assigned mentor from the student record, eliminating manual ID entry errors.
+- **Automatic Faculty Linking:** When a student settles a fee, the system credits their assigned mentor from the student record, ignoring any conflicting mentor ID in the payment request.
 
 ### 2. Spring Security Without Browser Dialog Hijacking
 Standard HTTP Basic Authentication triggers the browser's native credential modal prompt when a 401 response contains `WWW-Authenticate: Basic`. This creates an intrusive user experience where users are prompted twice.
@@ -74,6 +75,11 @@ Standard HTTP Basic Authentication triggers the browser's native credential moda
 Newly enrolled students and faculty have default passwords generated from their birth date (`ddMMyyyy`). In real-world data entry, dates often contain separators (e.g., `15-08-2005` or `15/08/2005`).
 - The enrollment services sanitize stored birthdate passwords using `replaceAll("[^0-9]", "")`.
 - A resilient `PasswordEncoder` strips non-alphanumeric characters during credential matching, allowing users to log in smoothly regardless of separator formatting.
+
+### 4. Student Enrollment and Initial Fees
+- Teachers can enroll students from their student roster. The backend assigns each new student to the authenticated teacher, regardless of any teacher ID in the request.
+- Administrators can enroll students and optionally select a mentor.
+- Both enrollment forms require an initial fee balance of at least one cent. It is rounded to two decimals and recorded as outstanding due, not as a payment or receipt; dashboard totals and mentor cohort balances include it automatically.
 
 ---
 

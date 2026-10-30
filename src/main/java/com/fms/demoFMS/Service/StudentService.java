@@ -29,11 +29,33 @@ public class StudentService {
 
     @Transactional
     public ResponseStudentDto addstudent(AddStudentdto addStudentdto) {
-        if (addStudentdto.getFeebalance() <= 0) {
-            throw new IllegalArgumentException("Fee balance must be greater than zero");
+        if (addStudentdto == null) {
+            throw new IllegalArgumentException("Student details are required");
         }
-        StudentEntity studentEntity = mapToStudent(addStudentdto);
+        double initialFee = normalizeInitialFee(addStudentdto.getFeebalance());
+        PrincipalEntity teacher = null;
+        if (addStudentdto.getTeacherId() != null && addStudentdto.getTeacherId() > 0) {
+            teacher = teacherRepo.findById(addStudentdto.getTeacherId())
+                    .orElseThrow(() -> new IllegalArgumentException("Selected teacher was not found"));
+        }
+        return saveNewStudent(addStudentdto, teacher, initialFee);
+    }
 
+    @Transactional
+    public ResponseStudentDto addStudentForTeacher(AddStudentdto addStudentdto, PrincipalEntity teacher) {
+        if (teacher == null) {
+            throw new IllegalArgumentException("An authenticated teacher is required");
+        }
+        if (addStudentdto == null) {
+            throw new IllegalArgumentException("Student details are required");
+        }
+        double initialFee = normalizeInitialFee(addStudentdto.getFeebalance());
+        return saveNewStudent(addStudentdto, teacher, initialFee);
+    }
+
+    private ResponseStudentDto saveNewStudent(AddStudentdto addStudentdto, PrincipalEntity teacher, double initialFee) {
+        StudentEntity studentEntity = mapToStudent(addStudentdto);
+        studentEntity.setFeebalance(initialFee);
         if (addStudentdto.getBirthdate() != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String pwd = addStudentdto.getBirthdate().format(formatter).replaceAll("[^0-9]", "");
@@ -42,13 +64,20 @@ public class StudentService {
             studentEntity.setPassword("student123");
         }
 
-        if (addStudentdto.getTeacherId() != null && addStudentdto.getTeacherId() > 0) {
-            PrincipalEntity teacher = teacherRepo.findById(addStudentdto.getTeacherId()).orElse(null);
-            studentEntity.setTeacher(teacher);
-        }
-
+        studentEntity.setTeacher(teacher);
         studentRepo.save(studentEntity);
         return mapToResponseStudent(studentEntity);
+    }
+
+    private double normalizeInitialFee(double feeBalance) {
+        if (!Double.isFinite(feeBalance) || feeBalance <= 0) {
+            throw new IllegalArgumentException("Fee balance must be greater than zero");
+        }
+        double roundedFee = Math.round(feeBalance * 100.0) / 100.0;
+        if (roundedFee <= 0) {
+            throw new IllegalArgumentException("Fee balance must be at least 0.01");
+        }
+        return roundedFee;
     }
 
     public ResponseStudentDto getstudentById(Integer id) {
@@ -97,7 +126,11 @@ public class StudentService {
                 existingStudentEntity.setEmail(studentUpdate.getEmail().trim());
             }
             if (studentUpdate.getFeebalance() != null) {
-                double roundedFee = Math.round(studentUpdate.getFeebalance() * 100.0) / 100.0;
+                double feeBalance = studentUpdate.getFeebalance();
+                if (!Double.isFinite(feeBalance) || feeBalance < 0) {
+                    throw new IllegalArgumentException("Fee balance must be finite and cannot be negative");
+                }
+                double roundedFee = Math.round(feeBalance * 100.0) / 100.0;
                 existingStudentEntity.setFeebalance(roundedFee);
             }
             if (studentUpdate.getTeacherId() != null) {

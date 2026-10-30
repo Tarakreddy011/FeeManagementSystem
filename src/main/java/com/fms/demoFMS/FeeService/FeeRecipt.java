@@ -34,7 +34,7 @@ public class FeeRecipt {
         if (request == null) {
             throw new IllegalArgumentException("Payment request cannot be null");
         }
-        if (request.getAmount() <= 0) {
+        if (!Double.isFinite(request.getAmount()) || request.getAmount() <= 0) {
             throw new IllegalArgumentException("Payment amount must be greater than zero");
         }
         if (request.getStudentId() == null) {
@@ -45,7 +45,10 @@ public class FeeRecipt {
                 .orElseThrow(() -> new RuntimeException("Student not found with ID: " + request.getStudentId()));
 
         double currentBalance = student.getFeebalance();
-        double paymentAmount = request.getAmount();
+        double paymentAmount = Math.round(request.getAmount() * 100.0) / 100.0;
+        if (paymentAmount <= 0) {
+            throw new IllegalArgumentException("Payment amount must be at least 0.01");
+        }
 
         if (paymentAmount > currentBalance) {
             throw new IllegalArgumentException("Payment amount of " + paymentAmount + 
@@ -56,16 +59,9 @@ public class FeeRecipt {
         student.setFeebalance(newBalance);
         studentRepo.save(student);
 
-        // Resolve teacher: prefer request's teacherId, then student's assigned teacher, then first available teacher
-        PrincipalEntity teacher = null;
-        if (request.getTeacherId() != null && request.getTeacherId() > 0) {
+        PrincipalEntity teacher = student.getTeacher();
+        if (teacher == null && request.getTeacherId() != null && request.getTeacherId() > 0) {
             teacher = teacherRepo.findById(request.getTeacherId()).orElse(null);
-        }
-        if (teacher == null && student.getTeacher() != null) {
-            teacher = student.getTeacher();
-        }
-        if (teacher == null) {
-            teacher = teacherRepo.findAll().stream().findFirst().orElse(null);
         }
 
         FeeHistory feeHistory = new FeeHistory();

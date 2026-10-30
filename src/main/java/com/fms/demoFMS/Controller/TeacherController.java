@@ -1,5 +1,6 @@
 package com.fms.demoFMS.Controller;
 
+import com.fms.demoFMS.DTOS.AddEntity.AddStudentdto;
 import com.fms.demoFMS.DTOS.AddEntity.AddTeacherdto;
 import com.fms.demoFMS.DTOS.AddEntity.ResponseStudentDto;
 import com.fms.demoFMS.DTOS.AddEntity.ResponseTeacherdto;
@@ -47,11 +48,7 @@ public class TeacherController {
             return ResponseEntity.status(401).body("Not authenticated");
         }
         String username = authentication.getName();
-        PrincipalEntity teacher = teacherRepo.findByEmailIgnoreCase(username)
-                .or(() -> teacherRepo.findByTeachernameIgnoreCase(username))
-                .or(() -> teacherRepo.findByEmail(username))
-                .or(() -> teacherRepo.findByTeachername(username))
-                .orElse(null);
+        PrincipalEntity teacher = findTeacher(username);
 
         if (teacher == null) {
             return ResponseEntity.status(404).body("Teacher profile not found for user: " + username);
@@ -66,11 +63,7 @@ public class TeacherController {
             return ResponseEntity.status(401).body("Not authenticated");
         }
         String username = authentication.getName();
-        PrincipalEntity teacher = teacherRepo.findByEmailIgnoreCase(username)
-                .or(() -> teacherRepo.findByTeachernameIgnoreCase(username))
-                .or(() -> teacherRepo.findByEmail(username))
-                .or(() -> teacherRepo.findByTeachername(username))
-                .orElse(null);
+        PrincipalEntity teacher = findTeacher(username);
 
         if (teacher == null) {
             return ResponseEntity.status(404).body("Teacher profile not found for user: " + username);
@@ -81,6 +74,19 @@ public class TeacherController {
                 .map(studentService::mapToResponseStudent)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
+    }
+
+    @PostMapping("/addstudent")
+    public ResponseEntity<?> addStudent(@RequestBody AddStudentdto addStudentdto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+        PrincipalEntity teacher = findTeacher(authentication.getName());
+        if (teacher == null) {
+            return ResponseEntity.status(404).body("Teacher profile not found");
+        }
+        ResponseStudentDto result = studentService.addStudentForTeacher(addStudentdto, teacher);
+        return ResponseEntity.status(201).body(result);
     }
 
     @PostMapping("/addteacher")
@@ -136,5 +142,12 @@ public class TeacherController {
             ));
         }
     }
-}
 
+    private PrincipalEntity findTeacher(String username) {
+        return teacherRepo.findByEmailIgnoreCase(username)
+                .or(() -> teacherRepo.findByTeachernameIgnoreCase(username))
+                .or(() -> teacherRepo.findByEmail(username))
+                .or(() -> teacherRepo.findByTeachername(username))
+                .orElse(null);
+    }
+}

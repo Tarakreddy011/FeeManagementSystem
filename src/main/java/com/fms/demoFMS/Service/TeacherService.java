@@ -57,7 +57,7 @@ public class TeacherService {
             if (teacherUpdate.getTeachername() != null && !teacherUpdate.getTeachername().isBlank()) {
                 existingEntity.setTeachername(teacherUpdate.getTeachername());
             }
-            if (teacherUpdate.getPhone() > 0) {
+            if (teacherUpdate.getPhone() != null && !teacherUpdate.getPhone().isBlank()) {
                 existingEntity.setPhone(teacherUpdate.getPhone());
             }
         }

@@ -20,5 +20,5 @@ public class ResponseStudentDto {
     private Integer teacherId;
     private String teacherName;
     private String teacherEmail;
-    private Integer teacherPhone;
+    private String teacherPhone;
 }
