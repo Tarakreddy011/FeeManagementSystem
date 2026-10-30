@@ -11,6 +11,8 @@ import com.fms.demoFMS.Repos.TeacherRepo;
 import com.fms.demoFMS.Service.StudentService;
 import com.fms.demoFMS.Service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -116,11 +118,23 @@ public class TeacherController {
 
     @DeleteMapping("/deleteteacher/{id}")
     public ResponseEntity<?> deleteTeacherById(@PathVariable Integer id) {
-        PrincipalEntity principalEntity = teacherService.deleteTeacher(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Teacher deleted successfully");
-        response.put("deletedTeacherId", principalEntity.getTeacherid());
-        return ResponseEntity.status(200).body(response);
+        if (studentRepo.existsByTeacher_Teacherid(id)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "message", "Reassign or unassign this teacher's students before deleting the faculty record."
+            ));
+        }
+
+        try {
+            PrincipalEntity principalEntity = teacherService.deleteTeacher(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Teacher deleted successfully");
+            response.put("deletedTeacherId", principalEntity.getTeacherid());
+            return ResponseEntity.ok(response);
+        } catch (DataIntegrityViolationException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "message", "This faculty record is linked to other records and cannot be deleted yet."
+            ));
+        }
     }
 }
 

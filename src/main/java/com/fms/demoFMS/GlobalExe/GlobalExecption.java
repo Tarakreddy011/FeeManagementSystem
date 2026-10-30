@@ -2,6 +2,7 @@ package com.fms.demoFMS.GlobalExe;
 
 import com.fms.demoFMS.DTOS.Execptions.ExecptionDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +25,19 @@ public class GlobalExecption {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(execptionDTO);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ExecptionDTO> handleDataIntegrityViolation(
+            DataIntegrityViolationException e, HttpServletRequest request) {
+        ExecptionDTO execptionDTO = new ExecptionDTO(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                "This change is blocked because related records still depend on it.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(execptionDTO);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExecptionDTO> handleRuntimeException(RuntimeException e, HttpServletRequest httpServletRequest) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -37,7 +51,7 @@ public class GlobalExecption {
                 LocalDateTime.now(),
                 status.value(),
                 status.getReasonPhrase(),
-                e.getMessage(),
+                status == HttpStatus.NOT_FOUND ? "Requested record was not found." : "The request could not be completed.",
                 httpServletRequest.getRequestURI()
         );
         return ResponseEntity.status(status).body(execptionDTO);
@@ -49,7 +63,7 @@ public class GlobalExecption {
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                e.getMessage(),
+                "An unexpected server error occurred. Please try again.",
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(execptionDTO);
