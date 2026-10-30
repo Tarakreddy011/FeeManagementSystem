@@ -11,7 +11,7 @@ A React frontend is also feasible. It can call the existing API routes, so a com
 - [x] Use two independent GitHub repositories; hosting is not part of this work.
 - [x] Use React for the standalone frontend.
 - [x] Keep the existing Spring Boot project as the backend repository and create a sibling frontend project, so the two repositories are not nested.
-- [x] Connect the React app to the existing backend API and keep the old static pages as a fallback during the transition.
+- [x] Connect the React app to the existing backend API; keep only small backend fallback/status pages.
 
 ## Backend Separation
 
@@ -20,14 +20,14 @@ A React frontend is also feasible. It can call the existing API routes, so a com
 - [ ] Enter the local MySQL password through the secure terminal prompt and verify the backend connects; do not commit the password or other secrets.
 - [x] Inventory the existing API routes needed for authentication, student, teacher, payment, dashboard, and principal workflows.
 - [x] Use the existing API operations for the initial React portals; document or add any missing API operations discovered during feature migration.
-- [ ] Remove or stop packaging the current UI under `src/main/resources/static` after its replacement is ready.
-- [ ] Preserve the current same-origin setup as a working fallback until the separately hosted frontend is verified.
+- [x] Remove the full legacy portal UI from `src/main/resources/static`; retain only the backend landing fallback and API status page.
+- [x] Keep backend fallback pages separate from the React workflows and direct users to the standalone frontend.
 
 ## Frontend Separation and React Migration
 
 - [x] Create a standalone Vite + React frontend project beside the backend repository.
 - [x] Add React login and role-based views for student, teacher, and principal users, using the existing backend routes.
-- [x] Centralize API requests and configure the backend base URL through `VITE_API_BASE_URL`.
+- [x] Route all React API requests, including login, through the shared client and configure the backend base URL through `VITE_API_BASE_URL`.
 - [x] Keep backend role checks as the security boundary; Spring Security already protects the API routes.
 - [x] Add loading/submission, empty, validation, and API error feedback to the migrated views.
 
@@ -51,9 +51,9 @@ A React frontend is also feasible. It can call the existing API routes, so a com
 ## Verification Checklist
 
 - [x] Backend compiles with `mvnw.cmd -q -DskipTests compile` after the CORS change.
-- [ ] Start the backend without serving the old frontend after React has reached full feature parity.
+- [ ] Start the backend and confirm it serves only fallback/status pages while all user workflows remain in React.
 - [x] Frontend builds independently of the backend using `npm run build`.
-- [x] Initialize a separate local Git repository for the frontend; a GitHub remote and push remain pending.
+- [x] Initialize a separate frontend Git repository and publish it to its own GitHub remote.
 - [ ] Start both applications and verify login against a configured local database.
 - [ ] Verify student profile, balance, payment, and receipt history against the running backend.
 - [ ] Verify teacher assigned-student and fee-management workflows against the running backend.

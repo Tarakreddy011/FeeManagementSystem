@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PayMyFee API Status</title>
+  <style>
+    :root{font-family:Segoe UI,Arial,sans-serif;color:#24342c;background:#f4f6f1;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+    main{width:min(520px,100%);background:#fff;border:1px solid #dfe6dc;border-radius:8px;padding:30px}
+    h1{font-size:22px;margin:0 0 8px}p{color:#66746a;line-height:1.5}.status{margin:20px 0;padding:14px;border-radius:5px;background:#edf1eb;color:#48564c;font-weight:650}
+    .status.ok{background:#e8f4e9;color:#276344}.status.fail{background:#faece9;color:#963e34}
+    a{color:#226b50;font-weight:650}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Backend API status</h1>
+    <p>This check requests the protected authentication endpoint without credentials. HTTP 401 means the API is reachable and correctly requesting authentication.</p>
+    <div id="status" class="status" role="status" aria-live="polite">Checking backend…</div>
+    <a href="/">Back to fallback page</a>
+  </main>
+  <script>
+    fetch('/api/auth/login', { headers: { Accept: 'application/json' } })
+      .then(response => {
+        const status = document.getElementById('status');
+        if (response.status === 200 || response.status === 401 || response.status === 403) {
+          status.className = 'status ok';
+          status.textContent = `API reachable (HTTP ${response.status}).`;
+        } else {
+          status.className = 'status fail';
+          status.textContent = `API responded with HTTP ${response.status}.`;
+        }
+      })
+      .catch(() => {
+        const status = document.getElementById('status');
+        status.className = 'status fail';
+        status.textContent = 'Could not reach the API. Check that the backend and database are running.';
+      });
+  </script>
+</body>
+</html>

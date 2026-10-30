@@ -26,26 +26,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Static Web Resources & UI Pages
+                        // Keep only the backend fallback and status pages public.
                         .requestMatchers(
                                 "/",
                                 "/index.html",
-                                "/styles.css",
-                                "/script.js",
-                                "/favicon.ico",
-                                "/Login/**",
-                                "/dashboard.html",
-                                "/principal-dashboard.html",
-                                "/student-portal.html",
-                                "/teacher-portal.html",
-                                "/students/*.html",
-                                "/students/*.css",
-                                "/students/*.js",
-                                "/teachers/*.html",
-                                "/teachers/*.css",
-                                "/teachers/*.js",
-                                "/feepayment/**",
-                                "/feeupdate/**"
+                                "/api-status.html",
+                                "/favicon.ico"
                         ).permitAll()
 
                         // 2. Auth Endpoints

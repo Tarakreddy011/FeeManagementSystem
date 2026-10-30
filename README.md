@@ -32,7 +32,7 @@ Security and privacy boundaries are enforced at both the Spring Security filter 
 | Manage Student-Teacher Relationships | No (Blocked 403) | No (Blocked 403) | Yes (`/api/principal/assign-mentor`) |
 | Onboard New Students or Teachers | No (Blocked 403) | No (Blocked 403) | Yes |
 | Delete Student or Teacher Records | No (Blocked 403) | No (Blocked 403) | Yes |
-| Access Principal Command Center | No (Blocked 403) | No (Blocked 403) | Yes (`/principal-dashboard.html`) |
+| Access Principal Command Center | No (Blocked 403) | No (Blocked 403) | Yes (React frontend) |
 
 ---
 
@@ -77,27 +77,12 @@ Newly enrolled students and faculty have default passwords generated from their 
 
 ---
 
-## Dedicated Frontend Portals
+## Application Architecture
 
-### 1. Principal Control Center (`principal-dashboard.html`)
-- **Executive Metrics Ribbon:** Total Enrolled Students, Faculty Mentors, Total Fees Collected, and Outstanding Fee Deficit.
-- **Campus Fee Recovery Index:** Live animated recovery bar showing percentage of billed tuition collected.
-- **Student-Teacher Mentorship Hub:** Interactive pairing roster with dropdown mentor selection for each student, instant assignment, and "Show Unassigned Only" toggle.
-- **Institutional Fee Management:** Direct fee balance updates for any student without requiring teacher ID entry.
-- **Faculty Supervision Panel:** Workload distribution table showing mentee count and total cohort fees for each teacher, plus onboard/remove actions.
-- **Real-Time Financial Audit Stream:** Live feed of verified student payment slips.
-
-### 2. Student Portal (`student-portal.html`)
-- **Outstanding Balance Display:** Prominent highlight card displaying real-time due fees in formatted Indian Rupees.
-- **Assigned Mentor Card:** Displays the name, ID, email, and contact number of the student's assigned supervisor.
-- **Fee Payment Box:** Lets students enter an installment or select quick amounts ("Pay Full Outstanding", "+₹1,000", "+₹5,000") with instant balance recalculation.
-- **Personal Receipt Ledger:** Tabular history of previous payment slips with receipt numbers, amounts, dates, and verification tags.
-- **Zero Exposure:** Completely isolated from administrative controls and other students' information.
-
-### 3. Faculty Portal (`teacher-portal.html`)
-- **Assigned Cohort Table:** View all students mentored by the faculty member, their fee status, and quick-action fee adjust buttons.
-- **Quick Fee Adjustment Modal:** Allows faculty to assign or modify student fee balances directly.
-- **Institution Student Roster:** Searchable table of all students across the institution for academic coordination.
+- The complete user interface is maintained in the separate [PayMyFee React frontend](https://github.com/Tarakreddy011/FMS).
+- The Spring Boot project in this repository is the API backend. React sends authentication, student, teacher, payment, and principal requests to the backend at `http://localhost:8080` by default.
+- The backend no longer serves the legacy portal UI. Its `src/main/resources/static` folder contains only small fallback/status pages for local troubleshooting; they are not the application frontend.
+- Backend authorization remains the security boundary. React route guards only control navigation and do not replace Spring Security.
 
 ---
 
@@ -142,16 +127,16 @@ npm run dev
 ```
 Open `http://localhost:5173`. The frontend calls the backend at `http://localhost:8080` by default. Change `VITE_API_BASE_URL` in the frontend `.env` if needed. The backend allows the local frontend origin by default; set `FRONTEND_ORIGIN` in the backend environment to override it.
 
-The legacy HTML pages under `src/main/resources/static` are retained temporarily as a fallback during React migration.
+The backend root page is only a fallback link to the React client. Visit `/api-status.html` on port `8080` to check API reachability without signing in.
 
 ### 5. Default Logins
 | Role | Identifier | Password | Destination Portal |
 | :--- | :--- | :--- | :--- |
-| **Principal (Administrator)** | `principal` | `principal123` | `principal-dashboard.html` |
-| **Built-in Admin** | `admin` | `admin123` | `principal-dashboard.html` |
-| **Default User** | `user` | `pwd` | `principal-dashboard.html` |
-| **Faculty Member** | `teacher` | `teacher123` | `teacher-portal.html` |
-| **Student** | `student` | `student123` | `student-portal.html` |
+| **Principal (Administrator)** | `principal` | `principal123` | Principal React portal |
+| **Built-in Admin** | `admin` | `admin123` | Principal React portal |
+| **Default User** | `user` | `pwd` | Principal React portal |
+| **Faculty Member** | `teacher` | `teacher123` | Teacher React portal |
+| **Student** | `student` | `student123` | Student React portal |
 
 ---
 
